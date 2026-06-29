@@ -2,7 +2,7 @@
 
 Role title: Data Engineering Director
 
-Organization: Mojo
+Organization: Mindshare
 
 Source recruiting item: REC-006
 
