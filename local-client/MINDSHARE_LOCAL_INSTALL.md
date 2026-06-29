@@ -7,14 +7,14 @@ This is the current development path for connecting the MindShare office UI to l
 Run the local Electron app:
 
 ```powershell
-cd C:\Users\scott\Code\mindshare\local-client
+cd C:\Users\scott\Code\central\local-client
 npm install
 npm start
 ```
 
 The app loads:
 
-- `C:\Users\scott\Code\mindshare\local-client\app-content\mindshare\public\departments\index.html`
+- `C:\Users\scott\Code\central\public\index.html` (canonical Central UI; `main.js` loads this at boot)
 - `preload.js`, which exposes `window.MindShareLocalClient`
 - `mindshare-local-client.js`, which checks Codex install/login state and sends prompts through local Codex CLI
 

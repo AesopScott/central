@@ -25,9 +25,9 @@
     },
     {
       "id": "public-ui",
-      "source": "local-client/app-content/mindshare/public/",
-      "destination": "app-content/mindshare/public/",
-      "notes": "Canonical Central UI pages and office surfaces. The repo-level public/ collection is mirror or backup only and must not overwrite this tree."
+      "source": "public/",
+      "destination": "public/",
+      "notes": "Canonical Central UI pages and office surfaces, authored directly at the repo-root public/ tree. main.js loads public/index.html at boot."
     },
     {
       "id": "mindshare-role-content",
@@ -109,8 +109,8 @@
   ],
   "currentDecisions": [
     "Chrome extension/native-host path is deprecated for Mindshare Central installer builds.",
-    "local-client/app-content is mixed content: app-content/mindshare/public is canonical app UI, while other app-content subtrees are generated package content.",
-    "Canonical app UI lives in local-client/app-content/mindshare/public/. Repo-level public/ is mirror or backup only and must not overwrite the local-client public tree.",
+    "Canonical app UI is authored directly at the repo-root public/ tree and loaded by main.js (public/index.html). local-client/app-content holds only generated package content (roles, docs, rooms, mojo, watch).",
+    "The app-content/mindshare/public source-and-mirror pipeline is retired; public/ is no longer generated or mirrored.",
     "The sync script should be narrowed before installer packaging."
   ],
   "maintenanceRules": [

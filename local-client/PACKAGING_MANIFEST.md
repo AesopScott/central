@@ -37,7 +37,7 @@ These are product-owned files that should be packaged into the installed app.
 | App metadata | `local-client/package.json`, `local-client/package-lock.json` | app root | Required for build and dependency lock. |
 | App assets | `local-client/assets/` | app assets | Icons and app-owned static assets. |
 | App scripts | `local-client/scripts/` | app scripts | Build/sync scripts; runtime scripts only when explicitly marked. |
-| Public UI | `local-client/app-content/mindshare/public/` | `app-content/mindshare/public/` | Canonical Home, departments, offices, tools, contact, and Central UI surfaces. Repo-level `public/` is mirror or backup only and must not overwrite this tree. |
+| Public UI | `public/` | `public/` | Canonical Home, departments, offices, tools, contact, and Central UI surfaces, authored directly at the repo-root `public/` tree. `main.js` loads `public/index.html` at boot. |
 | Mindshare role content | selected `roles/` | `app-content/mindshare/roles/` | Role files needed for offices and context loading, including copied Mojo/Watch role files. Exclude volatile proof/state unless promoted to app state. |
 | Mindshare agent content | selected `agents/` | `app-content/mindshare/agents/` | Only active/needed role-office support files. Deprecated agent profile/brief files should not be bundled unless still referenced. |
 | Global org files | selected global files | `app-content/mindshare/global/` | Roster, role artifacts, autonomy taxonomy, and app-level manifest files. |
@@ -91,8 +91,8 @@ The installer may check for these, but should not bundle credentials or authenti
 ## Current Cleanup Decisions
 
 - The Chrome extension/native-host path is deprecated for Mindshare Central and should be excluded from installer builds.
-- `local-client/app-content/` is mixed content. `local-client/app-content/mindshare/public/` is hand-maintained canonical app UI; other app-content subtrees are generated package content.
-- Canonical app UI lives in `local-client/app-content/mindshare/public/`. Repo-level `public/` is mirror or backup only and must not be used as the source for app packaging.
+- `local-client/app-content/` is generated package content (roles, docs, rooms, mojo, watch). It no longer carries a public UI tree.
+- Canonical app UI is authored directly at the repo-root `public/` tree and loaded by `main.js` (`public/index.html`). The old `app-content/mindshare/public` source-and-mirror pipeline is retired.
 - We should shrink the sync script before building the installer so it copies only manifest-approved paths.
 
 ## Maintenance Rules

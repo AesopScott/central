@@ -9,37 +9,19 @@ $watchRoot = Join-Path $codeRoot "watch"
 $mindshareDriveRoot = "G:\My Drive\Mindshare"
 $codexAutomationsRoot = Join-Path $env:USERPROFILE ".codex\automations"
 $contentRoot = Join-Path $localClientRoot "app-content"
-# MindShare Central public UI is canonical in app-content; mindshare/public is only the repo mirror.
-$canonicalPublicRoot = Join-Path $contentRoot "mindshare\public"
-$publicMirrorRoot = Join-Path $mindshareRoot "public"
+# Canonical Central UI is authored directly at the repo-root public/ tree (loaded by main.js).
+# app-content holds only generated package content; it no longer carries a public mirror.
 
 function Clear-AppContent {
     $resolvedLocalClientRoot = [System.IO.Path]::GetFullPath($localClientRoot)
     $resolvedContentRoot = [System.IO.Path]::GetFullPath($contentRoot)
-    $resolvedCanonicalPublicRoot = [System.IO.Path]::GetFullPath($canonicalPublicRoot)
 
     if (-not $resolvedContentRoot.StartsWith($resolvedLocalClientRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "Refusing to clear content outside local client root: $resolvedContentRoot"
     }
 
-    if (-not $resolvedCanonicalPublicRoot.StartsWith($resolvedLocalClientRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Refusing to preserve canonical public root outside local client root: $resolvedCanonicalPublicRoot"
-    }
-
     if (Test-Path -LiteralPath $resolvedContentRoot) {
-        foreach ($child in Get-ChildItem -LiteralPath $resolvedContentRoot -Force) {
-            $resolvedChild = [System.IO.Path]::GetFullPath($child.FullName)
-            if ($resolvedChild.Equals((Join-Path $resolvedContentRoot "mindshare"), [System.StringComparison]::OrdinalIgnoreCase)) {
-                foreach ($mindshareChild in Get-ChildItem -LiteralPath $resolvedChild -Force) {
-                    $resolvedMindshareChild = [System.IO.Path]::GetFullPath($mindshareChild.FullName)
-                    if (-not $resolvedMindshareChild.Equals($resolvedCanonicalPublicRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-                        Remove-Item -LiteralPath $resolvedMindshareChild -Recurse -Force
-                    }
-                }
-            } else {
-                Remove-Item -LiteralPath $resolvedChild -Recurse -Force
-            }
-        }
+        Remove-Item -LiteralPath $resolvedContentRoot -Recurse -Force
     }
     New-Item -ItemType Directory -Force -Path $resolvedContentRoot | Out-Null
 }
@@ -60,38 +42,6 @@ function Invoke-RoboCopy {
         /XF ".DS_Store" ".env" ".env.*" "*.key" "*.pem" "*.pfx" "*.pyc" "*.pyo" "*.log" "Thumbs.db" | Out-Host
     if ($LASTEXITCODE -gt 7) {
         throw "robocopy failed from $Source to $Destination with exit code $LASTEXITCODE"
-    }
-}
-
-function Invoke-RoboMirror {
-    param(
-        [Parameter(Mandatory = $true)][string]$Source,
-        [Parameter(Mandatory = $true)][string]$Destination
-    )
-
-    if (-not (Test-Path -LiteralPath $Source)) {
-        throw "Source path not found: $Source"
-    }
-
-    $resolvedSource = [System.IO.Path]::GetFullPath($Source)
-    $resolvedDestination = [System.IO.Path]::GetFullPath($Destination)
-    $resolvedCanonicalPublicRoot = [System.IO.Path]::GetFullPath($canonicalPublicRoot)
-    $resolvedPublicMirrorRoot = [System.IO.Path]::GetFullPath($publicMirrorRoot)
-
-    if (-not $resolvedSource.Equals($resolvedCanonicalPublicRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Refusing to mirror from non-canonical public source: $resolvedSource"
-    }
-
-    if (-not $resolvedDestination.Equals($resolvedPublicMirrorRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Refusing to mirror into unexpected public destination: $resolvedDestination"
-    }
-
-    New-Item -ItemType Directory -Force -Path $Destination | Out-Null
-    & robocopy $Source $Destination /MIR /R:1 /W:1 `
-        /XD ".git" ".claude" ".codex" ".obsidian" ".pytest_cache" ".mypy_cache" ".wrangler" "__pycache__" "node_modules" "tmp" `
-        /XF ".DS_Store" ".env" ".env.*" "*.key" "*.pem" "*.pfx" "*.pyc" "*.pyo" "*.log" "Thumbs.db" | Out-Host
-    if ($LASTEXITCODE -gt 7) {
-        throw "robocopy mirror failed from $Source to $Destination with exit code $LASTEXITCODE"
     }
 }
 
@@ -189,21 +139,6 @@ $missingSources = [System.Collections.ArrayList]::new()
 
 Clear-AppContent
 
-if (Test-Path -LiteralPath $canonicalPublicRoot) {
-    [void]$copiedSources.Add([ordered]@{
-        source = $canonicalPublicRoot
-        destination = $canonicalPublicRoot
-        type = "canonical-directory"
-    })
-    Invoke-RoboMirror -Source $canonicalPublicRoot -Destination $publicMirrorRoot
-    [void]$copiedSources.Add([ordered]@{
-        source = $canonicalPublicRoot
-        destination = $publicMirrorRoot
-        type = "mirror-directory"
-    })
-} else {
-    [void]$missingSources.Add($canonicalPublicRoot)
-}
 Copy-DirectoryIfPresent -Source (Join-Path $mindshareRoot "roles") -Destination (Join-Path $contentRoot "mindshare\roles") -CopiedSources $copiedSources -MissingSources $missingSources
 Copy-DirectoryIfPresent -Source (Join-Path $mindshareRoot "agents") -Destination (Join-Path $contentRoot "mindshare\agents") -CopiedSources $copiedSources -MissingSources $missingSources
 Copy-DirectoryIfPresent -Source (Join-Path $mindshareRoot "catalogs") -Destination (Join-Path $contentRoot "mindshare\catalogs") -CopiedSources $copiedSources -MissingSources $missingSources

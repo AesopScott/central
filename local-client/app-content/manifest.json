@@ -3,16 +3,6 @@
     "contentRoot":  ".",
     "copiedSources":  [
                           {
-                              "source":  "local-client/app-content/mindshare/public",
-                              "destination":  "mindshare/public",
-                              "type":  "canonical-directory"
-                          },
-                          {
-                              "source":  "local-client/app-content/mindshare/public",
-                              "destination":  "public",
-                              "type":  "mirror-directory"
-                          },
-                          {
                               "source":  "mindshare/roles",
                               "destination":  "mindshare/roles",
                               "type":  "directory"
