@@ -71,6 +71,8 @@ contextBridge.exposeInMainWorld('MindShareLocalClient', {
   sendDeepSeekMessage: (payload) => ipcRenderer.invoke('mindshare:deepseek-message', payload),
   getDeepSeekBalance: () => ipcRenderer.invoke('mindshare:deepseek-balance'),
   listConfigurationFiles: () => ipcRenderer.invoke('mindshare:configuration-files'),
+  getGitStatus: () => ipcRenderer.invoke('mindshare:git-status'),
+  commitAndPush: (payload) => ipcRenderer.invoke('mindshare:git-commit-push', payload),
   openConfigurationFile: (payload) => ipcRenderer.invoke('mindshare:open-configuration-file', payload),
   triggerMicrophoneShortcut: () => ipcRenderer.invoke('mindshare:microphone-shortcut'),
   chooseFiles: () => ipcRenderer.invoke('mindshare:choose-files'),
@@ -81,5 +83,6 @@ contextBridge.exposeInMainWorld('MindShareLocalClient', {
   installSkills: (payload) => ipcRenderer.invoke('mindshare:install-skills', payload),
   getCloudflareTopSites: (payload) => ipcRenderer.invoke('mindshare:cloudflare-top-sites', payload),
   getMeetupDashboard: (payload) => ipcRenderer.invoke('mindshare:meetup-dashboard', payload),
-  generateKlingVideo: (payload) => ipcRenderer.invoke('mindshare:kling-generate-video', payload)
+  generateKlingVideo: (payload) => ipcRenderer.invoke('mindshare:kling-generate-video', payload),
+  getSkillsRegistry: () => ipcRenderer.invoke('mindshare:skills-registry')
 });

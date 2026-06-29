@@ -88,6 +88,26 @@
         #code-review-button:hover {
             color: #ffe1b8;
         }
+        #commit-status-button.commit-status-dirty {
+            border-color: rgba(229, 72, 72, 0.85);
+            background: rgba(229, 72, 72, 0.18);
+            color: #ff9b9b;
+            box-shadow: 0 0 14px rgba(229, 72, 72, 0.4);
+        }
+        #commit-status-button.commit-status-dirty:hover {
+            background: rgba(229, 72, 72, 0.28);
+            color: #ffd0d0;
+        }
+        #commit-status-button.commit-status-clean {
+            border-color: rgba(74, 222, 128, 0.85);
+            background: rgba(74, 222, 128, 0.16);
+            color: #9bf0b5;
+            box-shadow: 0 0 14px rgba(74, 222, 128, 0.35);
+        }
+        #commit-status-button.commit-status-clean:hover {
+            background: rgba(74, 222, 128, 0.26);
+            color: #d0ffdc;
+        }
         .notification-badge {
             min-width: 1rem;
             height: 1rem;
@@ -354,6 +374,10 @@
 <span class="material-symbols-outlined text-[20px]">construction</span>
 <span class="hidden xl:inline font-label-sm text-[10px] uppercase tracking-widest">Tools</span>
 </a>
+<button class="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-on-surface-variant transition-all hover:border-primary/50 hover:text-primary" id="skills-button" type="button" aria-label="Open role skills" aria-expanded="false" data-tooltip="skills">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+<span class="hidden xl:inline font-label-sm text-[10px] uppercase tracking-widest">Skills</span>
+</button>
 <img class="w-10 h-10 rounded-full border border-primary/30 object-cover" id="active-office-avatar" data-alt="Selected office portrait" src="../assets/team/scott.webp">
 </div>
 </div>
@@ -375,6 +399,28 @@
 Configuration is loaded from the local MindShare workspace.
 </div>
 <div class="space-y-3" id="configuration-groups"></div>
+</div>
+</section>
+</div>
+<div class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/75 px-6 py-24" id="skills-panel">
+<section class="w-full max-w-5xl max-h-full overflow-hidden rounded-xl border border-primary-fixed-dim/35 bg-[#060912] shadow-2xl">
+<div class="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5">
+<div>
+<h2 class="font-display-lg text-headline-sm text-primary-fixed">Role Skills</h2>
+<p class="mt-1 text-sm text-on-surface-variant" id="skills-summary">Loading skills registry.</p>
+</div>
+<div class="flex items-center gap-3">
+<input class="hidden sm:block w-56 rounded-lg border border-white/15 bg-black/60 px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary-fixed-dim/60 focus:outline-none" id="skills-search" type="search" placeholder="Filter skills, owners…" aria-label="Filter skills">
+<button class="rounded-full p-2 text-on-surface-variant transition hover:bg-white/10 hover:text-primary-fixed" id="skills-close" type="button" aria-label="Close role skills">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<div class="max-h-[72vh] overflow-y-auto p-6 custom-scrollbar">
+<div class="mb-4 rounded-lg border border-white/10 bg-black/60 px-4 py-3 text-sm text-on-surface-variant" id="skills-status">
+Skills are loaded from the HR-owned registry (roles/skills-registry.json).
+</div>
+<div class="space-y-2" id="skills-list"></div>
 </div>
 </section>
 </div>
@@ -523,6 +569,8 @@ Configuration is loaded from the local MindShare workspace.
 <p class="font-label-sm text-on-surface-variant/50 uppercase tracking-widest">Chat Window</p>
 </div>
 </div>
+<!-- Queued Prompts -->
+<div class="hidden px-6 pt-2" id="queued-prompts" aria-live="polite"></div>
 <!-- Input Zone -->
 <div class="px-6 py-2 border-t border-white/10 glass-panel-heavy z-10">
 <div class="w-full relative group pt-12">
@@ -530,6 +578,9 @@ Configuration is loaded from the local MindShare workspace.
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" type="button" data-quick-prompt="Yes">Yes</button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" type="button" data-quick-prompt="No">No</button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" type="button" data-quick-prompt="Confirm">Confirm</button>
+</div>
+<div class="absolute -top-1 right-0 z-10 flex h-12 items-center" aria-label="Git commit status">
+<button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" id="commit-status-button" type="button" title="Working tree clean">Commit</button>
 </div>
 <textarea class="w-full bg-surface-container-low border border-white/10 rounded-xl px-6 py-4 pb-14 pr-32 focus:border-primary transition-all focus:ring-0 text-on-surface font-body-md resize-none custom-scrollbar" id="chat-input" placeholder="Query Neural Suite..." rows="3" spellcheck="true"></textarea>
 <div class="absolute left-4 bottom-3 flex items-center gap-2" aria-label="Prompt engine selector">
@@ -1587,6 +1638,180 @@ Configuration is loaded from the local MindShare workspace.
             return window.MindShareLocalClient || null;
         }
 
+        let skillsRegistryCache = null;
+
+        function formatOwnerSlug(slug) {
+            if (!slug) return 'Unassigned';
+            const parts = String(slug).split('-');
+            if (parts.length === 1) return parts[0];
+            const name = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+            const title = parts.slice(1).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            return `${name} · ${title}`;
+        }
+
+        function skillStatusBadge(status) {
+            const map = {
+                'draft': 'border-white/20 bg-white/5 text-on-surface-variant',
+                'owner-gated': 'border-[#f6a34d]/40 bg-[#f6a34d]/10 text-[#f6a34d]',
+                'modify-existing': 'border-primary-fixed-dim/40 bg-primary-fixed-dim/10 text-primary-fixed'
+            };
+            const cls = map[status] || 'border-white/20 bg-white/5 text-on-surface-variant';
+            return `<span class="rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cls}">${escapeHtml(status || 'unknown')}</span>`;
+        }
+
+        function renderSkillsList(filterText = '') {
+            const listContainer = document.getElementById('skills-list');
+            const summary = document.getElementById('skills-summary');
+            const status = document.getElementById('skills-status');
+            if (!skillsRegistryCache?.ok) {
+                listContainer.innerHTML = '';
+                summary.textContent = 'Skills registry could not be loaded.';
+                status.textContent = skillsRegistryCache?.error || 'MindShare Local could not read roles/skills-registry.json.';
+                return;
+            }
+
+            const needle = filterText.trim().toLowerCase();
+            const skills = [...skillsRegistryCache.skills].sort((a, b) => String(a.skill).localeCompare(String(b.skill)));
+            const visible = needle
+                ? skills.filter((s) => [s.skill, s.owner, s.notes, s.trigger, s.status].filter(Boolean).join(' ').toLowerCase().includes(needle))
+                : skills;
+
+            summary.textContent = `${skills.length} skills across ${new Set(skills.map((s) => s.owner)).size} owners.`;
+            status.textContent = `Source: roles/skills-registry.json · generated ${skillsRegistryCache.generated || 'n/a'} by ${formatOwnerSlug(skillsRegistryCache.generatedBy)}.`;
+
+            if (!visible.length) {
+                listContainer.innerHTML = '<div class="rounded-lg border border-white/10 bg-black/60 px-4 py-6 text-center text-sm text-on-surface-variant">No skills match this filter.</div>';
+                return;
+            }
+
+            listContainer.innerHTML = visible.map((s) => {
+                const description = s.notes || (s.trigger ? `Trigger: ${s.trigger}` : 'No description recorded in registry.');
+                const gates = Array.isArray(s.gated_by) && s.gated_by.length
+                    ? s.gated_by.map((g) => `<span class="rounded border border-red-300/30 bg-red-300/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-200">${escapeHtml(g)}</span>`).join(' ')
+                    : '';
+                const triggerLine = s.trigger ? `<span class="text-[11px] text-on-surface-variant">Trigger: ${escapeHtml(s.trigger)}</span>` : '';
+                return `
+                    <div class="rounded-lg border border-white/10 bg-black/70 px-4 py-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="font-semibold text-primary-fixed">${escapeHtml(s.skill)}</span>
+                            <div class="flex flex-wrap items-center gap-2">${skillStatusBadge(s.status)}${gates}</div>
+                        </div>
+                        <div class="mt-1 text-sm text-on-surface-variant">${escapeHtml(description)}</div>
+                        <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                            <span class="text-xs text-[#f6a34d]">Owner: ${escapeHtml(formatOwnerSlug(s.owner))}</span>
+                            ${triggerLine}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function closeSkillsPanel() {
+            const panel = document.getElementById('skills-panel');
+            const button = document.getElementById('skills-button');
+            panel?.classList.add('hidden');
+            panel?.classList.remove('flex');
+            button?.setAttribute('aria-expanded', 'false');
+        }
+
+        async function showSkillsPanel() {
+            const panel = document.getElementById('skills-panel');
+            const button = document.getElementById('skills-button');
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
+            button?.setAttribute('aria-expanded', 'true');
+            document.getElementById('skills-summary').textContent = 'Loading skills registry.';
+            document.getElementById('skills-list').innerHTML = '';
+            const client = mindShareLocalClient();
+            if (!client?.getSkillsRegistry) {
+                skillsRegistryCache = { ok: false, error: 'Skills browsing is only available inside the MindShare Central app.' };
+                renderSkillsList();
+                return;
+            }
+            try {
+                skillsRegistryCache = await client.getSkillsRegistry();
+            } catch (error) {
+                skillsRegistryCache = { ok: false, error: error.message || String(error) };
+            }
+            const search = document.getElementById('skills-search');
+            if (search) search.value = '';
+            renderSkillsList();
+        }
+
+        const COMMIT_STATUS_POLL_MS = 8000;
+
+        function applyCommitStatus(status) {
+            const button = document.getElementById('commit-status-button');
+            if (!button) return;
+            const ok = !!(status && status.ok);
+            const dirty = !!(ok && status.dirty);
+            button.classList.toggle('commit-status-dirty', dirty);
+            button.classList.toggle('commit-status-clean', ok && !dirty);
+            if (!ok) {
+                button.textContent = 'Commit';
+                button.title = status && status.error ? `Git status unavailable: ${status.error}` : 'Git status unavailable';
+                return;
+            }
+            if (dirty) {
+                button.textContent = `Commit (${status.count})`;
+                const preview = status.files.slice(0, 20).join('\n');
+                const extra = status.count > 20 ? `\n…and ${status.count - 20} more` : '';
+                button.title = `${status.count} uncommitted file(s):\n${preview}${extra}`;
+            } else {
+                button.textContent = 'Commit';
+                button.title = 'Working tree clean — nothing to commit';
+            }
+        }
+
+        async function refreshCommitStatus() {
+            const client = mindShareLocalClient();
+            if (!client || typeof client.getGitStatus !== 'function') {
+                applyCommitStatus({ ok: false, error: 'Local client bridge not available' });
+                return;
+            }
+            try {
+                applyCommitStatus(await client.getGitStatus());
+            } catch (error) {
+                applyCommitStatus({ ok: false, error: error?.message || String(error) });
+            }
+        }
+
+        async function handleCommitClick() {
+            const client = mindShareLocalClient();
+            if (!client || typeof client.commitAndPush !== 'function') {
+                applyCommitStatus({ ok: false, error: 'Local client bridge not available' });
+                return;
+            }
+            const button = document.getElementById('commit-status-button');
+            if (button && button.dataset.committing === '1') return;
+            if (button) {
+                button.dataset.committing = '1';
+                button.disabled = true;
+                button.textContent = 'Committing…';
+            }
+            try {
+                const result = await client.commitAndPush();
+                if (!result || !result.ok) {
+                    const stage = result?.stage ? ` (${result.stage})` : '';
+                    if (result?.committed) {
+                        setChatStatus(`Committed but push failed${stage}: ${result?.error || 'unknown error'}`);
+                    } else {
+                        setChatStatus(`Commit failed${stage}: ${result?.error || 'unknown error'}`);
+                    }
+                } else {
+                    setChatStatus(`Committed and pushed ${result.count} file(s) to origin.`);
+                }
+            } catch (error) {
+                setChatStatus(`Commit failed: ${error?.message || String(error)}`);
+            } finally {
+                if (button) {
+                    button.dataset.committing = '';
+                    button.disabled = false;
+                }
+                await refreshCommitStatus();
+            }
+        }
+
         async function runTessAutomationIfNeeded(roleSession) {
             if (!roleSession || roleSession.slug !== 'tess') return;
             const client = mindShareLocalClient();
@@ -2021,6 +2246,15 @@ Configuration is loaded from the local MindShare workspace.
             }
         }
 
+        function reusePromptText(text) {
+            const input = document.getElementById('chat-input');
+            if (!input) return;
+            input.value = text;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.focus();
+            input.setSelectionRange(text.length, text.length);
+        }
+
         function escapeHtml(value) {
             return String(value ?? '')
                 .replaceAll('&', '&amp;')
@@ -2286,6 +2520,15 @@ Configuration is loaded from the local MindShare workspace.
                 </div>
                 <div class="${isUser ? 'bg-primary-container text-primary-fixed rounded-tr-none' : 'glass-panel-heavy text-on-surface rounded-tl-none silver-edge'} max-w-3xl px-4 py-3 rounded-xl whitespace-pre-wrap leading-snug font-body-md">${escapeHtml(text)}</div>
             `;
+            if (isUser) {
+                const reuseBtn = document.createElement('button');
+                reuseBtn.type = 'button';
+                reuseBtn.title = 'Copy this prompt back into the input';
+                reuseBtn.className = 'self-end shrink-0 w-7 h-7 rounded-lg glass-panel-heavy border border-primary/30 text-primary/70 hover:text-primary flex items-center justify-center transition-all';
+                reuseBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">content_copy</span>';
+                reuseBtn.addEventListener('click', () => reusePromptText(text));
+                row.appendChild(reuseBtn);
+            }
             transcript.appendChild(row);
             transcript.scrollTop = transcript.scrollHeight;
         }
@@ -2430,6 +2673,46 @@ Configuration is loaded from the local MindShare workspace.
                 workingStartTime = null;
                 if (timer) timer.textContent = '';
             }
+            renderQueuedPrompts();
+        }
+
+        function renderQueuedPrompts() {
+            const container = document.getElementById('queued-prompts');
+            if (!container) return;
+            const roleSession = activeRoleSlug ? roleSessions[activeRoleSlug] : null;
+            const queue = roleSession?.promptQueue || [];
+            if (!queue.length) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <div class="flex flex-col items-end gap-1.5">
+                    <span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant/70">${queue.length} queued</span>
+                    ${queue.map((item, index) => `
+                        <div class="flex items-center gap-2 max-w-[75%] glass-panel-heavy silver-edge rounded-lg px-3 py-1.5">
+                            <span class="material-symbols-outlined text-[14px] text-on-surface-variant/70">schedule</span>
+                            <span class="truncate text-xs text-on-surface" title="${escapeHtml(item.displayMessage || item.message)}">${escapeHtml(item.displayMessage || item.message)}</span>
+                            <button class="shrink-0 text-on-surface-variant/60 hover:text-primary transition-colors" type="button" data-dequeue="${index}" aria-label="Remove queued prompt">
+                                <span class="material-symbols-outlined text-[14px]">close</span>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.querySelectorAll('[data-dequeue]').forEach((button) => {
+                button.addEventListener('click', () => dequeuePrompt(Number(button.dataset.dequeue)));
+            });
+        }
+
+        function dequeuePrompt(index) {
+            if (!activeRoleSlug || !roleSessions[activeRoleSlug]) return;
+            const roleSession = roleSessions[activeRoleSlug];
+            if (!Number.isInteger(index) || index < 0 || index >= roleSession.promptQueue.length) return;
+            roleSession.promptQueue.splice(index, 1);
+            persistOfficeState();
+            renderActiveSessions();
         }
 
         function renderAutomationRuns() {
@@ -3432,6 +3715,17 @@ Configuration is loaded from the local MindShare workspace.
             document.getElementById('configuration-panel').addEventListener('click', (event) => {
                 if (event.target.id === 'configuration-panel') closeConfigurationPanel();
             });
+            document.getElementById('skills-button').addEventListener('click', (event) => {
+                event.stopPropagation();
+                showSkillsPanel();
+            });
+            document.getElementById('skills-close').addEventListener('click', closeSkillsPanel);
+            document.getElementById('skills-panel').addEventListener('click', (event) => {
+                if (event.target.id === 'skills-panel') closeSkillsPanel();
+            });
+            document.getElementById('skills-search').addEventListener('input', (event) => {
+                renderSkillsList(event.target.value || '');
+            });
             document.getElementById('configuration-groups').addEventListener('click', (event) => {
                 event.stopPropagation();
                 const button = event.target.closest('[data-config-file-index][data-config-editor]');
@@ -3480,6 +3774,9 @@ Configuration is loaded from the local MindShare workspace.
             });
             document.getElementById('chat-input').addEventListener('input', syncActiveDraftFromInput);
             document.getElementById('chat-input').addEventListener('paste', handlePromptPaste);
+            document.getElementById('commit-status-button').addEventListener('click', handleCommitClick);
+            refreshCommitStatus();
+            setInterval(refreshCommitStatus, COMMIT_STATUS_POLL_MS);
         });
     </script>
 

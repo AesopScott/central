@@ -119,6 +119,93 @@ function runPowerShell(script, timeoutMs = 5000) {
   });
 }
 
+function getGitStatus() {
+  return new Promise((resolve) => {
+    const repoRoot = path.join(__dirname, '..');
+    const child = spawn('git', ['status', '--porcelain'], { cwd: repoRoot, windowsHide: true });
+    let stdout = '';
+    let stderr = '';
+    const timeout = setTimeout(() => {
+      child.kill();
+      resolve({ ok: false, error: 'git status timed out.', dirty: false, count: 0, files: [] });
+    }, 5000);
+    child.stdout.on('data', (data) => { stdout += data.toString(); });
+    child.stderr.on('data', (data) => { stderr += data.toString(); });
+    child.on('error', (error) => {
+      clearTimeout(timeout);
+      resolve({ ok: false, error: error.message || String(error), dirty: false, count: 0, files: [] });
+    });
+    child.on('close', (code) => {
+      clearTimeout(timeout);
+      if (code !== 0) {
+        resolve({ ok: false, error: stderr.trim() || `git exited ${code}`, dirty: false, count: 0, files: [] });
+        return;
+      }
+      const files = stdout
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => line.replace(/^[\sMADRCU?!]{1,2}\s+/, ''));
+      resolve({ ok: true, dirty: files.length > 0, count: files.length, files });
+    });
+  });
+}
+
+function runGit(args, timeoutMs = 30000) {
+  return new Promise((resolve) => {
+    const repoRoot = path.join(__dirname, '..');
+    const child = spawn('git', args, { cwd: repoRoot, windowsHide: true });
+    let stdout = '';
+    let stderr = '';
+    const timeout = setTimeout(() => {
+      child.kill();
+      resolve({ ok: false, code: null, stdout, stderr: `git ${args[0]} timed out.` });
+    }, timeoutMs);
+    child.stdout.on('data', (data) => { stdout += data.toString(); });
+    child.stderr.on('data', (data) => { stderr += data.toString(); });
+    child.on('error', (error) => {
+      clearTimeout(timeout);
+      resolve({ ok: false, code: null, stdout, stderr: error.message || String(error) });
+    });
+    child.on('close', (code) => {
+      clearTimeout(timeout);
+      resolve({ ok: code === 0, code, stdout, stderr });
+    });
+  });
+}
+
+async function gitCommitAndPush(payload = {}) {
+  const status = await getGitStatus();
+  if (!status.ok) {
+    return { ok: false, stage: 'status', error: status.error || 'git status failed.' };
+  }
+  if (!status.dirty) {
+    return { ok: false, stage: 'status', error: 'Working tree clean — nothing to commit.' };
+  }
+
+  const stamp = new Date().toISOString();
+  const message = String(payload.message || '').trim() || `MindShare commit (${status.count} file(s)) ${stamp}`;
+
+  const add = await runGit(['add', '-A']);
+  if (!add.ok) {
+    return { ok: false, stage: 'add', error: add.stderr.trim() || `git add exited ${add.code}` };
+  }
+
+  const commit = await runGit(['commit', '-m', message]);
+  if (!commit.ok) {
+    return { ok: false, stage: 'commit', error: commit.stderr.trim() || commit.stdout.trim() || `git commit exited ${commit.code}` };
+  }
+
+  // -u origin HEAD pushes the current branch to a like-named origin branch,
+  // setting upstream on first push and reusing it thereafter.
+  const push = await runGit(['push', '-u', 'origin', 'HEAD'], 60000);
+  if (!push.ok) {
+    return { ok: false, stage: 'push', committed: true, message, error: push.stderr.trim() || `git push exited ${push.code}` };
+  }
+
+  return { ok: true, committed: true, pushed: true, message, count: status.count };
+}
+
 async function refreshConfigurationFileCache() {
   configurationFileCachePromise = listConfigurationFiles()
     .then((payload) => {
@@ -1205,6 +1292,30 @@ function installApplicationMenu() {
   Menu.setApplicationMenu(null);
 }
 
+// Read-only load of the HR-owned skills registry (roles/skills-registry.json).
+// Source of truth for the Skills panel. No write, no activation, no gate change.
+function getSkillsRegistry() {
+  const repoRoot = path.join(__dirname, '..');
+  const registryPath = path.join(repoRoot, 'roles', 'skills-registry.json');
+  try {
+    if (!fs.existsSync(registryPath)) {
+      return { ok: false, error: 'skills-registry.json not found in roles/.' };
+    }
+    const raw = fs.readFileSync(registryPath, 'utf8');
+    const data = JSON.parse(raw);
+    return {
+      ok: true,
+      version: data.version || null,
+      generated: data.generated || null,
+      generatedBy: data.generated_by || null,
+      gateOwners: data.gate_owners || {},
+      skills: Array.isArray(data.skills) ? data.skills : []
+    };
+  } catch (error) {
+    return { ok: false, error: `Could not read skills registry: ${error.message}` };
+  }
+}
+
 ipcMain.handle('mindshare:codex-connect', async (_event, payload) => connectCodex(payload));
 ipcMain.handle('mindshare:claude-connect', async (_event, payload) => connectClaude(payload));
 ipcMain.handle('mindshare:sessions', async () => listSessions());
@@ -1242,6 +1353,8 @@ ipcMain.handle('mindshare:deepseek-connect', async (_event, payload) => connectD
 ipcMain.handle('mindshare:deepseek-message', async (_event, payload) => sendDeepSeekMessage(payload));
 ipcMain.handle('mindshare:deepseek-balance', async () => getDeepSeekBalance());
 ipcMain.handle('mindshare:configuration-files', async () => getConfigurationFiles());
+ipcMain.handle('mindshare:git-status', async () => getGitStatus());
+ipcMain.handle('mindshare:git-commit-push', async (_event, payload) => gitCommitAndPush(payload));
 ipcMain.handle('mindshare:open-configuration-file', async (_event, payload) => openConfigurationFile(payload));
 ipcMain.handle('mindshare:microphone-shortcut', async () => triggerWindowsVoiceShortcut());
 ipcMain.handle('mindshare:choose-files', async () => {
@@ -1296,6 +1409,7 @@ ipcMain.handle('mindshare:install-skills', async (_event, payload = {}) => insta
 ipcMain.handle('mindshare:cloudflare-top-sites', async (_event, payload = {}) => getCloudflareTopSites(payload));
 ipcMain.handle('mindshare:meetup-dashboard', async (_event, payload = {}) => getMeetupDashboard(payload));
 ipcMain.handle('mindshare:kling-generate-video', async (_event, payload = {}) => generateKlingVideo(payload));
+ipcMain.handle('mindshare:skills-registry', async () => getSkillsRegistry());
 
 ipcMain.on('window-minimize', (event) => { BrowserWindow.fromWebContents(event.sender)?.minimize(); });
 ipcMain.on('window-maximize', (event) => {

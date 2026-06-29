@@ -465,8 +465,7 @@ const ROLE_CATALOG = {
       "mindshare"
     ],
     "files": [
-      "AGENTS.md",
-      "project-foundation.md"
+      "AGENTS.md"
     ]
   },
   "rae": {
@@ -1637,7 +1636,6 @@ async function runTessLevel4Automation(payload = {}) {
 
 const configurationFileDescriptions = {
   'AGENTS.md': 'Repository instructions, role routing, and operating rules loaded by coding agents.',
-  'project-foundation.md': 'MAPS control artifact for project foundation, source roots, and durable memory rules.',
   'gate.md': 'Tool-gate policy that defines approval and execution boundaries.',
   'gate-exceptions.md': 'Approved gate exceptions for narrowly scoped files, roles, or functions.',
   'roles.md': 'Organization roster, role structure, reporting lines, and current standing notes.',
@@ -1658,7 +1656,8 @@ const configurationFileDescriptions = {
   'hook-spec-old.md': 'Legacy hook proposal retained for reference after the automation reset.',
   'script-spec-old.md': 'Legacy script proposal retained for reference after the automation reset.',
   'level4automation-old.py': 'Legacy level 4 automation script retained for reference after the automation reset.',
-  'level5automation-old.py': 'Legacy level 5 automation script retained for reference after the automation reset.'
+  'level5automation-old.py': 'Legacy level 5 automation script retained for reference after the automation reset.',
+  'mindshare-local-client.js': 'Local client runtime. Holds ROLE_CATALOG, the control-plane map of which canonical files are injected into each role session.'
 };
 
 function configurationFileTitle(fileName) {
@@ -1728,12 +1727,12 @@ async function listConfigurationFiles() {
   const standardPath = path.join(roots.mindshare, 'roles', 'hr-director', 'team-member-file-structure.md');
   const globalCandidates = [
     path.join(roots.mindshare, 'AGENTS.md'),
-    path.join(roots.mindshare, 'project-foundation.md'),
     path.join(roots.home, '.codex', 'tool-gate', 'gate.md'),
     path.join(roots.home, '.codex', 'tool-gate', 'gate-exceptions.md'),
     path.join(roots.mindshare, 'roles', 'hr-director', 'team-member-file-structure.md'),
     path.join(roots.mindshareDrive, 'roles.md'),
-    path.join(roots.mindshareDrive, 'role-artifacts.md')
+    path.join(roots.mindshareDrive, 'role-artifacts.md'),
+    path.join(roots.mindshare, 'local-client', 'mindshare-local-client.js')
   ];
   const globalFiles = [];
   for (const candidate of globalCandidates) {
@@ -1766,6 +1765,32 @@ async function listConfigurationFiles() {
   };
 }
 
+// Resolve the VS Code launcher: PATH first (code.cmd / code), then the
+// standard Windows install locations so it works without PATH setup.
+async function resolveVsCode() {
+  const configured = process.env.VSCODE_EXE;
+  if (configured && await pathExists(configured)) {
+    return configured;
+  }
+  const onPath = await firstCommand('code.cmd') || await firstCommand('code');
+  if (onPath) {
+    return onPath;
+  }
+  if (process.platform === 'win32') {
+    const candidates = [
+      path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Microsoft VS Code', 'Code.exe'),
+      path.join(process.env.ProgramFiles || '', 'Microsoft VS Code', 'Code.exe'),
+      path.join(process.env['ProgramFiles(x86)'] || '', 'Microsoft VS Code', 'Code.exe')
+    ];
+    for (const candidate of candidates) {
+      if (candidate && await pathExists(candidate)) {
+        return candidate;
+      }
+    }
+  }
+  return null;
+}
+
 async function openConfigurationFile(payload = {}) {
   const filePath = String(payload.path || '');
   const appName = String(payload.app || '').toLowerCase();
@@ -1777,14 +1802,73 @@ async function openConfigurationFile(payload = {}) {
     return { ok: true };
   }
   if (appName === 'vscode') {
-    const code = await firstCommand('code.cmd') || await firstCommand('code');
+    const code = await resolveVsCode();
     if (!code) {
-      return { ok: false, error: 'VS Code command `code` was not found on PATH.' };
+      return { ok: false, error: 'VS Code not found on PATH or in standard install locations.' };
     }
     spawn(code, [filePath], { detached: true, stdio: 'ignore', windowsHide: false }).unref();
     return { ok: true };
   }
   return { ok: false, error: `Unknown editor: ${appName || 'none'}.` };
+}
+
+// agent.md and Autonomy.md are created only when a role is promoted to an agent.
+// Until a role is an agent these files do not exist yet, so they must not be
+// treated as missing canonical files. A role opts into the agent set with
+// `isAgent: true` in ROLE_CATALOG.
+const AGENT_ONLY_ROLE_FILES = new Set(['agent.md', 'autonomy.md']);
+
+function effectiveRoleFiles(role) {
+  const declared = Array.isArray(role.files) ? role.files : [];
+  if (role.isAgent === true) {
+    return declared;
+  }
+  return declared.filter((fileName) => !AGENT_ONLY_ROLE_FILES.has(String(fileName).toLowerCase()));
+}
+
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Canonical role files live at repo-root `roles/{firstname}-{titleslug}/`, not under
+// app-content/mindshare/roles. The legacy `rolePath` in ROLE_CATALOG pointed at the
+// stale app-content tree with a title-only slug (e.g. `ai-engineer`) and is no longer
+// used for resolving real role files. Scott is the human-owner pseudo-role whose files
+// stay under app-content/mindshare, so it keeps the legacy rolePath.
+async function resolveRoleRoot(role, roleSlug) {
+  if (roleSlug === 'scott') {
+    const appContentRoot = await resolveAppContentRoot();
+    return path.join(appContentRoot, ...role.rolePath);
+  }
+
+  // Role folders are named `{firstname}-{titleslug}`; the catalog `name` holds the full
+  // name (e.g. "Morgan Vale"), so derive the slug from the first name only.
+  const firstName = String(role.name || '').trim().split(/\s+/)[0];
+  const rolesBase = path.join(repoRoot, 'roles');
+  const derivedDir = role.roleDir || `${slugify(firstName)}-${slugify(role.title)}`;
+  const derivedPath = path.join(rolesBase, derivedDir);
+  if (await pathExists(derivedPath)) {
+    return derivedPath;
+  }
+
+  // Fallback: match the first directory that starts with the role's first name, so a
+  // title-slug drift (e.g. catalog "Executive Assistant" vs a renamed folder) still loads.
+  const namePrefix = `${slugify(firstName)}-`;
+  try {
+    const entries = await fs.readdir(rolesBase, { withFileTypes: true });
+    const match = entries.find((entry) => entry.isDirectory() && entry.name.startsWith(namePrefix));
+    if (match) {
+      return path.join(rolesBase, match.name);
+    }
+  } catch (_) {
+    // roles/ unreadable — fall through to the derived path so the caller reports it missing.
+  }
+
+  return derivedPath;
 }
 
 async function loadRoleContext(payload = {}) {
@@ -1798,8 +1882,9 @@ async function loadRoleContext(payload = {}) {
   }
 
   const appContentRoot = await resolveAppContentRoot();
-  const roleRoot = path.join(appContentRoot, ...role.rolePath);
-  const files = await Promise.all(role.files.map((fileName) => readRoleFile(roleRoot, fileName)));
+  const roleRoot = await resolveRoleRoot(role, roleSlug);
+  const expectedFiles = effectiveRoleFiles(role);
+  const files = await Promise.all(expectedFiles.map((fileName) => readRoleFile(roleRoot, fileName)));
   const whoAmI = synthesizeWhoAmI(role, files);
   const roleContext = {
     slug: roleSlug,
