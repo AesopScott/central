@@ -4,6 +4,7 @@
 <title class="">MindShare Central | Departments</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="../data/title-descriptions.js"></script>
+<script src="../assets/skills-modal.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
@@ -180,6 +181,16 @@
             0%, 100% { opacity: 0.45; transform: scale(0.9); }
             50% { opacity: 1; transform: scale(1.15); }
         }
+        @keyframes token-usage-slow-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.25; }
+        }
+        .token-usage-warn { color: #facc15 !important; }
+        .token-usage-crit { color: #f87171 !important; }
+        .token-usage-flash { animation: token-usage-slow-flash 2s ease-in-out infinite; }
+        .memorize-count-low { color: #4ade80 !important; }
+        .memorize-count-mid { color: #facc15 !important; }
+        .memorize-count-high { color: #f87171 !important; }
         .metallic-silver {
             background: linear-gradient(135deg, #bec6e0 0%, #798098 100%);
         }
@@ -390,9 +401,14 @@
 <h2 class="font-display-lg text-headline-sm text-primary-fixed">Configuration Files</h2>
 <p class="mt-1 text-sm text-on-surface-variant" id="configuration-summary">Loading role, agent, and global files.</p>
 </div>
+<div class="flex items-center gap-1">
+<button class="rounded-full p-2 text-on-surface-variant transition hover:bg-white/10 hover:text-primary-fixed disabled:opacity-40 disabled:cursor-not-allowed" id="configuration-refresh" type="button" aria-label="Refresh configuration files" data-tooltip="refresh">
+<span class="material-symbols-outlined">refresh</span>
+</button>
 <button class="rounded-full p-2 text-on-surface-variant transition hover:bg-white/10 hover:text-primary-fixed" id="configuration-close" type="button" aria-label="Close configuration files">
 <span class="material-symbols-outlined">close</span>
 </button>
+</div>
 </div>
 <div class="max-h-[72vh] overflow-y-auto p-6 custom-scrollbar">
 <div class="mb-4 rounded-lg border border-white/10 bg-black/60 px-4 py-3 text-sm text-on-surface-variant" id="configuration-status">
@@ -519,6 +535,10 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 <span class="provider-ready-dot w-2 h-2 rounded-full transition-all" id="claude-ready-dot" aria-hidden="true"></span>
 <span class="font-label-sm text-primary">Connect Claude</span>
 </button>
+<button class="flex items-center gap-2 glass-panel px-3 py-2 rounded-md border border-white/10 hover:border-primary/50 hover:bg-white/5 transition-all cursor-pointer" id="deepseek-balance-button" type="button" title="Click to refresh DeepSeek API balance">
+<span class="font-label-sm text-on-surface-variant">DeepSeek</span>
+<span class="font-label-sm text-primary tabular-nums" id="deepseek-balance-display">--</span>
+</button>
 </div>
 </div>
 <div class="office-working-banner hidden items-center justify-between gap-4 border-b border-emerald-300/25 px-8 py-3 text-emerald-100" id="office-working-banner">
@@ -578,8 +598,10 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" type="button" data-quick-prompt="Yes">Yes</button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" type="button" data-quick-prompt="No">No</button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" type="button" data-quick-prompt="Confirm">Confirm</button>
+<div class="flex flex-wrap items-center gap-2" id="role-skill-buttons" aria-label="Role skills"></div>
 </div>
-<div class="absolute -top-1 right-0 z-10 flex h-12 items-center" aria-label="Git commit status">
+<div class="absolute -top-1 right-0 z-10 flex h-12 items-center gap-2" aria-label="Git commit status">
+<button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" id="memorize-button" type="button" title="Draft a prompt to save this session's notes to a configured memory location">Memorize</button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" id="commit-status-button" type="button" title="Working tree clean">Commit</button>
 </div>
 <textarea class="w-full bg-surface-container-low border border-white/10 rounded-xl px-6 py-4 pb-14 pr-32 focus:border-primary transition-all focus:ring-0 text-on-surface font-body-md resize-none custom-scrollbar" id="chat-input" placeholder="Query Neural Suite..." rows="3" spellcheck="true"></textarea>
@@ -618,6 +640,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 <div class="hidden pt-3 flex flex-wrap gap-2" id="attachment-tray"></div>
 <div class="grid h-12 grid-cols-1 gap-1 md:grid-cols-[auto_auto] md:items-center md:justify-between">
 <div class="flex h-full flex-wrap items-center gap-2" aria-label="Prompt quick actions">
+<button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" id="prompt-view-button" type="button">Prompt View</button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" id="code-review-button" type="button">Code Review <span id="code-review-count">0</span></button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" id="clear-screen-button" type="button">Clear</button>
 <button class="prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] uppercase tracking-widest transition-all" id="trim-session-button" type="button">Trim</button>
@@ -640,6 +663,21 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 </button>
 </div>
 <div class="flex-1 overflow-y-auto custom-scrollbar p-4" id="code-review-list"></div>
+</div>
+</div>
+<div class="hidden absolute inset-y-0 right-0 z-40 w-[560px] max-w-[calc(100vw-2rem)] border-l border-primary-fixed-dim/30 bg-black/90 shadow-2xl backdrop-blur-xl" id="prompt-view-drawer">
+<div class="flex h-full flex-col">
+<div class="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
+<div>
+<div class="font-label-sm text-[10px] uppercase tracking-[0.24em] text-primary">Injection Audit</div>
+<h3 class="mt-1 font-display-lg text-xl font-semibold text-primary-fixed">Prompt View</h3>
+<p class="mt-1 text-xs leading-relaxed text-on-surface-variant" id="prompt-view-summary">What MindShare injects into the next turn.</p>
+</div>
+<button class="rounded-md p-2 text-on-surface-variant hover:text-primary" id="prompt-view-close" type="button" aria-label="Close prompt view drawer">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-4" id="prompt-view-body"></div>
 </div>
 </div>
 </div>
@@ -1002,6 +1040,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
         let automationRuns = [];
         const NOTIFICATION_TTL_MS = 120000;
         const OFFICE_STATE_STORAGE_KEY = 'mindshare.officeSessions.v2';
+        const NOTIFICATIONS_STORAGE_KEY = 'mindshare.sessionNotifications.v1';
         const AUTOMATION_RUNS_STORAGE_KEY = 'mindshare.automationRuns.v1';
         const TESS_AUTOMATION_LAST_RUN_KEY = 'mindshare.tessLevel4Automation.lastRun.v1';
         const VIK_AUTOMATION_LAST_RUN_KEY = 'mindshare.vikAutomation.lastRun.v1';
@@ -1164,6 +1203,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                         codeReviews: Array.isArray(session.codeReviews) ? session.codeReviews : [],
                         draftText: session.draftText || '',
                         tokenUsage: session.tokenUsage || null,
+                        memorizeMarker: session.memorizeMarker || 0,
                         officeInjected: session.officeInjected,
                         connectionIssue: session.connectionIssue
                     };
@@ -1211,6 +1251,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                         codeReviews: Array.isArray(session.codeReviews) ? session.codeReviews : [],
                         draftText: session.draftText || '',
                         tokenUsage: session.tokenUsage || null,
+                        memorizeMarker: session.memorizeMarker || 0,
                         promptQueue: [],
                         officeInjected: Boolean(session.officeInjected),
                         connectionIssue: Boolean(session.connectionIssue),
@@ -1446,11 +1487,59 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             persistOfficeState();
         }
 
+        const TOKEN_USAGE_WARN_THRESHOLD = 100000;
+        const TOKEN_USAGE_CRIT_THRESHOLD = 250000;
+        const TOKEN_USAGE_FLASH_THRESHOLD = 500000;
+
+        function applyTokenUsageSeverity(element, totals) {
+            element.classList.remove('token-usage-warn', 'token-usage-crit', 'token-usage-flash');
+            const peak = Math.max(Number(totals?.inputTokens || 0), Number(totals?.outputTokens || 0));
+            if (peak >= TOKEN_USAGE_FLASH_THRESHOLD) {
+                element.classList.add('token-usage-crit', 'token-usage-flash');
+            } else if (peak >= TOKEN_USAGE_CRIT_THRESHOLD) {
+                element.classList.add('token-usage-crit');
+            } else if (peak >= TOKEN_USAGE_WARN_THRESHOLD) {
+                element.classList.add('token-usage-warn');
+            }
+        }
+
+        function countUserTurns(roleSession) {
+            return conversationMessages(roleSession?.messages).filter((message) => message.role === 'user').length;
+        }
+
+        const MEMORIZE_COUNT_MID_THRESHOLD = 4;
+        const MEMORIZE_COUNT_HIGH_THRESHOLD = 10;
+        function applyMemorizeCountSeverity(button, unsaved) {
+            button.classList.remove('memorize-count-low', 'memorize-count-mid', 'memorize-count-high');
+            if (unsaved >= MEMORIZE_COUNT_HIGH_THRESHOLD) {
+                button.classList.add('memorize-count-high');
+            } else if (unsaved >= MEMORIZE_COUNT_MID_THRESHOLD) {
+                button.classList.add('memorize-count-mid');
+            } else {
+                button.classList.add('memorize-count-low');
+            }
+        }
+
+        function renderMemorizeCount(roleSession) {
+            const button = document.getElementById('memorize-button');
+            if (!button || button.disabled) return;
+            const unsaved = roleSession
+                ? Math.max(0, countUserTurns(roleSession) - (roleSession.memorizeMarker || 0))
+                : 0;
+            button.textContent = unsaved > 0 ? `Memorize (${unsaved})` : 'Memorize';
+            applyMemorizeCountSeverity(button, unsaved);
+            button.title = unsaved > 0
+                ? `${unsaved} new turn(s) since last memorize — draft a prompt to save this session's notes to a configured memory location`
+                : "Draft a prompt to save this session's notes to a configured memory location";
+        }
+
         function renderTokenUsage(roleSession = activeRoleSlug ? roleSessions[activeRoleSlug] : null) {
+            renderMemorizeCount(roleSession);
             const element = document.getElementById('token-usage-status');
             if (!element) return;
             const usage = roleSession?.tokenUsage;
             if (!usage?.last) {
+                applyTokenUsageSeverity(element, null);
                 element.textContent = roleSession ? 'Tokens: no turns yet' : 'Tokens: select an office';
                 return;
             }
@@ -1459,6 +1548,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             const provider = last.provider === 'claude' ? 'Claude' : 'Codex';
             const cache = Number(last.cachedInputTokens || 0) + Number(last.cacheCreationInputTokens || 0);
             const totalCache = Number(totals.cachedInputTokens || 0) + Number(totals.cacheCreationInputTokens || 0);
+            applyTokenUsageSeverity(element, totals);
             element.textContent = `Last ${provider}: In ${formatTokenCount(last.inputTokens)} · Cache ${formatTokenCount(cache)} · Out ${formatTokenCount(last.outputTokens)} · ${formatContextPercent(last)} | Total: In ${formatTokenCount(totals.inputTokens)} · Cache ${formatTokenCount(totalCache)} · Out ${formatTokenCount(totals.outputTokens)}`;
         }
 
@@ -1542,6 +1632,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             renderOfficeRunsControl(null);
             renderTokenUsage(null);
             renderOfficeWorkingState(null);
+            renderRoleSkillButtons(null);
             showOfficeContext({
                 name: 'Agent Name',
                 title: department,
@@ -1582,6 +1673,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             renderTokenUsage(roleSession);
             renderOfficeWorkingState(roleSession);
             renderCodeReviewDrawer();
+            renderRoleSkillButtons(slug);
             closeContextDropdowns();
             showOfficeContext({
                 name,
@@ -1773,6 +1865,47 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                 applyCommitStatus(await client.getGitStatus());
             } catch (error) {
                 applyCommitStatus({ ok: false, error: error?.message || String(error) });
+            }
+        }
+
+        const MEMORIZE_PROMPT_INTRO = 'Take all of the notes from this session and add them to my configured memory location, as would be valuable via search or knowledge graph recall later. Note the content and make a determination which memory location to use is appropriate and thus which note title to create.';
+
+        function buildMemorizePrompt(locations) {
+            if (!Array.isArray(locations) || !locations.length) return MEMORIZE_PROMPT_INTRO;
+            const lines = locations.map((loc) => {
+                const note = loc.noteConvention ? ` — note title: ${loc.noteConvention}` : '';
+                return `- ${loc.key} — ${loc.path}${note}`;
+            });
+            return `${MEMORIZE_PROMPT_INTRO}\n\nConfigured memory locations:\n${lines.join('\n')}`;
+        }
+
+        async function handleMemorizeClick() {
+            const button = document.getElementById('memorize-button');
+            const input = document.getElementById('chat-input');
+            if (!input) return;
+            const client = mindShareLocalClient();
+            let locations = [];
+            if (client && typeof client.listMemoryLocations === 'function') {
+                if (button) { button.disabled = true; button.textContent = 'Loading…'; }
+                try {
+                    const result = await client.listMemoryLocations();
+                    if (result?.ok) locations = result.locations || [];
+                    else setChatStatus(`Memory locations unavailable: ${result?.error || 'unknown error'}`);
+                } catch (error) {
+                    setChatStatus(`Memory locations failed: ${error?.message || String(error)}`);
+                } finally {
+                    if (button) { button.disabled = false; button.textContent = 'Memorize'; }
+                }
+            }
+            input.value = buildMemorizePrompt(locations);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+            const roleSession = activeRoleSlug ? roleSessions[activeRoleSlug] : null;
+            if (roleSession) {
+                roleSession.memorizeMarker = countUserTurns(roleSession);
+                persistOfficeState();
+                renderMemorizeCount(roleSession);
             }
         }
 
@@ -2255,6 +2388,29 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             input.setSelectionRange(text.length, text.length);
         }
 
+        function roleSkillsFor(slug) {
+            const all = window.MindShareSkills?.data;
+            if (!slug || !Array.isArray(all)) return [];
+            return all.filter((s) => s.owner === slug);
+        }
+
+        function renderRoleSkillButtons(slug = activeRoleSlug) {
+            const container = document.getElementById('role-skill-buttons');
+            if (!container) return;
+            const skills = roleSkillsFor(slug);
+            container.innerHTML = '';
+            skills.forEach((s) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'prompt-action-button rounded-md px-3 py-1.5 font-label-sm text-[10px] tracking-widest transition-all';
+                button.textContent = `/${s.skill}`;
+                button.title = `${s.desc} (owner: ${s.owner}; ${s.status})`;
+                button.dataset.skillTrigger = s.skill;
+                button.addEventListener('click', () => reusePromptText(`/${s.skill} `));
+                container.appendChild(button);
+            });
+        }
+
         function escapeHtml(value) {
             return String(value ?? '')
                 .replaceAll('&', '&amp;')
@@ -2345,6 +2501,166 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 
         function closeCodeReviewDrawer() {
             document.getElementById('code-review-drawer')?.classList.add('hidden');
+        }
+
+        // --- Prompt View: honest injection audit -------------------------------
+        // Panel A = what MindShare actually injects (measured, reused helpers).
+        // Panel B = the CLI/harness layer MindShare never holds (labeled only).
+        // Panel C = prior completed sessions (stored locally, NOT injected).
+        function promptViewTokens(value) {
+            return Math.ceil(String(value || '').length / 4);
+        }
+
+        function promptViewEngine() {
+            return activeEngine === 'combo' ? 'claude' : activeEngine;
+        }
+
+        function promptViewSessionId(roleSession, engine) {
+            if (!roleSession) return '';
+            if (engine === 'claude') return roleSession.claudeSessionId || '';
+            if (engine === 'deepseek') return roleSession.deepseekSessionId || '';
+            return roleSession.codexSessionId || '';
+        }
+
+        function promptViewRowHtml(row) {
+            const dim = row.present ? '' : ' opacity-60';
+            const note = row.note ? `<p class="mt-1 text-xs leading-relaxed text-on-surface-variant/80">${escapeHtml(row.note)}</p>` : '';
+            let detail = '';
+            if (Array.isArray(row.files) && row.files.length) {
+                detail = `<div class="mt-2 space-y-1 border-l border-white/10 pl-3">` + row.files.map((file) => {
+                    const flag = file.missing
+                        ? '<span class="text-yellow-200">missing</span>'
+                        : file.included
+                            ? (file.truncated ? '<span class="text-yellow-200">included · truncated</span>' : '<span class="text-emerald-200">included</span>')
+                            : '<span class="text-red-300">omitted (budget)</span>';
+                    return `<div class="flex items-center justify-between gap-3 text-xs">
+                        <span class="min-w-0 truncate font-mono text-on-surface-variant" title="${escapeHtml(file.path || '')}">${escapeHtml(file.fileName || 'file')}</span>
+                        <span class="shrink-0 text-on-surface-variant/80">${file.missing ? flag : `${file.tokens.toLocaleString()} tok · ${flag}`}</span>
+                    </div>`;
+                }).join('') + `</div>`;
+            }
+            if (Array.isArray(row.turns) && row.turns.length) {
+                detail = `<div class="mt-2 space-y-1 border-l border-white/10 pl-3">` + row.turns.map((turn) => {
+                    const flag = turn.included ? '' : ' <span class="text-red-300">· dropped (budget)</span>';
+                    return `<div class="flex items-center justify-between gap-3 text-xs">
+                        <span class="font-mono text-on-surface-variant">${escapeHtml(turn.label)} (${escapeHtml(turn.role)})</span>
+                        <span class="shrink-0 text-on-surface-variant/80">${turn.tokens.toLocaleString()} tok${flag}</span>
+                    </div>`;
+                }).join('') + `</div>`;
+            }
+            return `<div class="rounded-lg border border-white/10 bg-surface-container-lowest p-3${dim}">
+                <div class="flex items-baseline justify-between gap-3">
+                    <span class="text-sm font-medium text-primary-fixed">${escapeHtml(row.label)}</span>
+                    <span class="shrink-0 font-mono text-xs text-primary">${(row.tokens || 0).toLocaleString()} tok</span>
+                </div>
+                <div class="mt-0.5 text-[10px] uppercase tracking-widest text-on-surface-variant/60">${(row.chars || 0).toLocaleString()} chars${row.present ? '' : ' · absent this turn'}</div>
+                ${note}
+                ${detail}
+            </div>`;
+        }
+
+        function promptViewPriorSessionsHtml() {
+            const count = sessionNotifications.length;
+            const entries = sessionNotifications.map((notification) => {
+                const stored = roleSessions[notification.roleSlug];
+                const sizeText = stored && Array.isArray(stored.messages)
+                    ? `${promptViewTokens(stored.messages.map((m) => m.content || m.text || '').join('\n')).toLocaleString()} tok stored`
+                    : 'size unavailable';
+                return `<div class="flex items-center justify-between gap-3 text-xs">
+                    <span class="min-w-0 truncate text-on-surface-variant">${escapeHtml(notification.name || notification.roleSlug)}</span>
+                    <span class="shrink-0 text-on-surface-variant/80">${sizeText}</span>
+                </div>`;
+            }).join('');
+            return `<div class="rounded-lg border border-dashed border-yellow-300/30 bg-yellow-300/5 p-3">
+                <div class="flex items-baseline justify-between gap-3">
+                    <span class="text-sm font-medium text-yellow-100">Prior completed sessions</span>
+                    <span class="shrink-0 font-mono text-xs text-yellow-100">${count}</span>
+                </div>
+                <p class="mt-1 text-xs leading-relaxed text-on-surface-variant/80">Stored locally for the notification bell. <strong>NOT injected into this prompt</strong> — only the last 6 turns above are sent. Sizes are the full stored transcript per role, shown for reference.</p>
+                ${count ? `<div class="mt-2 space-y-1 border-l border-yellow-300/20 pl-3">${entries}</div>` : ''}
+            </div>`;
+        }
+
+        async function renderPromptView() {
+            const body = document.getElementById('prompt-view-body');
+            const summary = document.getElementById('prompt-view-summary');
+            if (!body) return;
+            const roleSession = activeRoleSlug ? roleSessions[activeRoleSlug] : null;
+            if (!roleSession) {
+                body.innerHTML = `<div class="rounded-lg border border-dashed border-white/15 p-5 text-sm leading-relaxed text-on-surface-variant">Select a role, then open Prompt View to audit exactly what gets injected into its next turn.</div>`;
+                if (summary) summary.textContent = 'No role selected.';
+                return;
+            }
+            const client = mindShareLocalClient();
+            if (!client?.getPromptPreview) {
+                body.innerHTML = `<div class="rounded-lg border border-dashed border-white/15 p-5 text-sm leading-relaxed text-on-surface-variant">MindShare Local Client is not connected. Start the local client to measure the prompt.</div>`;
+                if (summary) summary.textContent = 'Local client offline.';
+                return;
+            }
+            body.innerHTML = `<div class="p-4 text-sm text-on-surface-variant">Measuring injected prompt…</div>`;
+            const engine = promptViewEngine();
+            const model = engine === 'claude' ? activeClaudeModel : (engine === 'codex' ? activeCodexModel : null);
+            const input = document.getElementById('chat-input');
+            const message = input ? input.value : '';
+            const transcriptEnd = roleSession.messages.length;
+            const transcript = roleSession.messages.slice(Math.max(0, transcriptEnd - 6), transcriptEnd);
+            const attachments = pendingAttachments.map((file) => ({ ...file }));
+
+            let preview;
+            try {
+                preview = await client.getPromptPreview({
+                    sessionId: promptViewSessionId(roleSession, engine),
+                    provider: engine,
+                    model,
+                    roleContext: roleSession.roleContext,
+                    transcript,
+                    attachments,
+                    message
+                });
+            } catch (error) {
+                body.innerHTML = `<div class="rounded-lg border border-red-300/30 bg-red-300/10 p-4 text-sm text-red-200">Prompt preview failed: ${escapeHtml(error.message || String(error))}</div>`;
+                return;
+            }
+            if (!preview?.ok) {
+                body.innerHTML = `<div class="rounded-lg border border-red-300/30 bg-red-300/10 p-4 text-sm text-red-200">Prompt preview failed: ${escapeHtml(preview?.error || 'unknown error')}</div>`;
+                return;
+            }
+
+            const comboNote = activeEngine === 'combo'
+                ? `<div class="rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs leading-relaxed text-on-surface-variant">Combo sends two prompts (Codex, plus a Claude build pass when requested). This previews the Claude-shaped assembly; the Codex prompt is the same blocks with a near-identical wrapper.</div>`
+                : '';
+            const a = preview.panelA;
+            const rowsHtml = a.rows.map(promptViewRowHtml).join('');
+            const bSources = preview.panelB.sources.map((source) => `<li class="text-xs leading-relaxed text-on-surface-variant">${escapeHtml(source)}</li>`).join('');
+
+            if (summary) summary.textContent = `${a.totalTokens.toLocaleString()} tok injected (est.) · ${engineLabel(engine)}${model ? ` · ${model}` : ''}`;
+            body.innerHTML = `
+                ${comboNote}
+                <div class="mb-2 flex items-baseline justify-between gap-3">
+                    <div class="font-label-sm text-[10px] uppercase tracking-widest text-primary">A · Injected by MindShare (measured)</div>
+                    <div class="font-mono text-xs text-primary">${a.totalTokens.toLocaleString()} tok · ${a.totalChars.toLocaleString()} chars</div>
+                </div>
+                <p class="mb-3 text-xs leading-relaxed text-on-surface-variant/70">${escapeHtml(preview.estimateNote)}</p>
+                <div class="space-y-2">${rowsHtml}</div>
+
+                <div class="mt-5 mb-2 font-label-sm text-[10px] uppercase tracking-widest text-primary">B · Assembled by the CLI (not measured here)</div>
+                <div class="rounded-lg border border-dashed border-white/15 p-3">
+                    <p class="text-xs leading-relaxed text-on-surface-variant/80">${escapeHtml(preview.panelB.note)}</p>
+                    <ul class="mt-2 list-disc space-y-1 pl-5">${bSources}</ul>
+                </div>
+
+                <div class="mt-5 mb-2 font-label-sm text-[10px] uppercase tracking-widest text-primary">C · Prior sessions (stored, not injected)</div>
+                ${promptViewPriorSessionsHtml()}
+            `;
+        }
+
+        function openPromptViewDrawer() {
+            renderPromptView();
+            document.getElementById('prompt-view-drawer')?.classList.remove('hidden');
+        }
+
+        function closePromptViewDrawer() {
+            document.getElementById('prompt-view-drawer')?.classList.add('hidden');
         }
 
         function closeConfigurationPanel() {
@@ -2466,12 +2782,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             ]);
         }
 
-        async function showConfigurationPanel() {
-            const panel = document.getElementById('configuration-panel');
-            const button = document.getElementById('configuration-button');
-            panel.classList.remove('hidden');
-            panel.classList.add('flex');
-            button?.setAttribute('aria-expanded', 'true');
+        async function loadConfigurationFiles() {
+            const refreshButton = document.getElementById('configuration-refresh');
             document.getElementById('configuration-summary').textContent = 'Loading role, agent, and global files.';
             document.getElementById('configuration-status').textContent = 'Reading local source roots from MindShare Local.';
             document.getElementById('configuration-groups').innerHTML = '';
@@ -2480,11 +2792,25 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                 renderConfigurationGroups({ ok: false, error: 'MindShare Local configuration browsing is only available inside the Electron app.' });
                 return;
             }
+            refreshButton?.setAttribute('disabled', 'true');
+            refreshButton?.querySelector('.material-symbols-outlined')?.classList.add('animate-spin');
             try {
                 renderConfigurationGroups(await configurationRequestWithTimeout(client));
             } catch (error) {
                 renderConfigurationGroups({ ok: false, error: error.message || String(error) });
+            } finally {
+                refreshButton?.removeAttribute('disabled');
+                refreshButton?.querySelector('.material-symbols-outlined')?.classList.remove('animate-spin');
             }
+        }
+
+        async function showConfigurationPanel() {
+            const panel = document.getElementById('configuration-panel');
+            const button = document.getElementById('configuration-button');
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
+            button?.setAttribute('aria-expanded', 'true');
+            await loadConfigurationFiles();
         }
 
         async function openConfigurationFile(index, editor) {
@@ -2837,6 +3163,29 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             closeOfficeRunsDropdown();
         }
 
+        function persistSessionNotifications() {
+            try {
+                localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(sessionNotifications.slice(0, 50)));
+            } catch (error) {
+                console.warn('Could not persist MindShare notifications.', error);
+            }
+        }
+
+        function restoreSessionNotifications() {
+            try {
+                const raw = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
+                if (!raw) return;
+                const saved = JSON.parse(raw);
+                if (!Array.isArray(saved)) return;
+                sessionNotifications.length = 0;
+                saved.forEach((n) => {
+                    if (n && n.id && n.roleSlug) sessionNotifications.push(n);
+                });
+            } catch (error) {
+                console.warn('Could not restore MindShare notifications.', error);
+            }
+        }
+
         function removeSessionNotification(id) {
             const index = sessionNotifications.findIndex((notification) => notification.id === id);
             if (index >= 0) {
@@ -2846,6 +3195,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                 clearTimeout(notificationTimers[id]);
                 delete notificationTimers[id];
             }
+            persistSessionNotifications();
             renderSessionNotifications();
         }
 
@@ -2874,8 +3224,10 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 
             list.querySelectorAll('[data-notification-role]').forEach((button) => {
                 button.addEventListener('click', () => {
-                    const session = roleSessions[button.dataset.notificationRole];
-                    if (session) {
+                    const slug = button.dataset.notificationRole;
+                    const notification = sessionNotifications.find((n) => n.id === button.dataset.notificationId);
+                    const session = roleSessions[slug] || notification;
+                    if (session && session.slug) {
                         selectRole(session.slug, session.name, session.title, session.level, session.department);
                     }
                     removeSessionNotification(button.dataset.notificationId);
@@ -2891,9 +3243,14 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             sessionNotifications.unshift({
                 id,
                 roleSlug: roleSession.slug,
-                name: roleSession.name
+                slug: roleSession.slug,
+                name: roleSession.name,
+                title: roleSession.title || '',
+                level: roleSession.level || '',
+                department: roleSession.department || ''
             });
-            notificationTimers[id] = setTimeout(() => removeSessionNotification(id), NOTIFICATION_TTL_MS);
+            // Persist until the user clicks the notification — survives reload via localStorage.
+            persistSessionNotifications();
             renderSessionNotifications();
         }
 
@@ -3313,6 +3670,33 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             return connectClaudeCli();
         }
 
+        async function refreshDeepSeekBalance() {
+            const button = document.getElementById('deepseek-balance-button');
+            const display = document.getElementById('deepseek-balance-display');
+            if (!display) return;
+            const client = mindShareLocalClient();
+            if (!client?.getDeepSeekBalance) {
+                display.textContent = 'n/a';
+                button?.setAttribute('title', 'DeepSeek balance requires the MindShare Central local bridge.');
+                return;
+            }
+            display.textContent = '...';
+            let result;
+            try {
+                result = await client.getDeepSeekBalance();
+            } catch (error) {
+                result = { ok: false, error: error.message || String(error) };
+            }
+            if (!result?.ok) {
+                display.textContent = 'error';
+                button?.setAttribute('title', `DeepSeek balance lookup failed: ${result?.error || 'no balance returned'}`);
+                return;
+            }
+            const currency = result.currency || 'USD';
+            display.textContent = result.formatted || `${currency} ${result.totalBalance ?? '0.00'}`;
+            button?.setAttribute('title', 'Click to refresh DeepSeek API balance.');
+        }
+
         async function triggerMicrophoneShortcut() {
             const input = document.getElementById('chat-input');
             input.focus();
@@ -3470,6 +3854,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             roleSession.messages = keepRecent
                 ? conversationMessages(roleSession.messages).slice(-4)
                 : [];
+            roleSession.memorizeMarker = 0;
             persistOfficeState();
             renderTranscript(roleSession.messages);
             injectOfficeEntry(roleSession, null, { forceVisible: true });
@@ -3637,6 +4022,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             renderOfficeWorkingState(roleSession);
             latestCodeReviews = Array.isArray(roleSession.codeReviews) ? roleSession.codeReviews : [];
             renderCodeReviewDrawer();
+            renderRoleSkillButtons(roleSession.slug);
             const input = document.getElementById('chat-input');
             if (input) input.value = roleSession.draftText || '';
             showOfficeContext({
@@ -3649,6 +4035,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 
         document.addEventListener('DOMContentLoaded', async () => {
             restoreOfficeState();
+            restoreSessionNotifications();
+            renderSessionNotifications();
             renderRecentMenu();
             restoreAutomationRuns();
             const params = new URLSearchParams(window.location.search);
@@ -3678,6 +4066,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 
             document.getElementById('connect-codex-button').addEventListener('click', connectCodex);
             document.getElementById('connect-claude-button').addEventListener('click', connectClaude);
+            document.getElementById('deepseek-balance-button').addEventListener('click', refreshDeepSeekBalance);
+            refreshDeepSeekBalance();
             document.getElementById('prompt-engine-codex').addEventListener('click', () => toggleModelDropdown('codex'));
             document.getElementById('prompt-engine-claude').addEventListener('click', () => toggleModelDropdown('claude'));
             document.getElementById('codex-model-dropdown').addEventListener('click', (event) => {
@@ -3702,6 +4092,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             document.getElementById('prompt-engine-combo').addEventListener('click', () => setPromptEngine('combo'));
             document.getElementById('code-review-button').addEventListener('click', openCodeReviewDrawer);
             document.getElementById('code-review-close').addEventListener('click', closeCodeReviewDrawer);
+            document.getElementById('prompt-view-button').addEventListener('click', openPromptViewDrawer);
+            document.getElementById('prompt-view-close').addEventListener('click', closePromptViewDrawer);
             document.getElementById('work-queue-button').addEventListener('click', toggleWorkQueuePanel);
             document.getElementById('work-queue-close').addEventListener('click', closeWorkQueuePanel);
             document.getElementById('work-queue-panel').addEventListener('click', (event) => {
@@ -3712,6 +4104,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                 showConfigurationPanel();
             });
             document.getElementById('configuration-close').addEventListener('click', closeConfigurationPanel);
+            document.getElementById('configuration-refresh').addEventListener('click', loadConfigurationFiles);
             document.getElementById('configuration-panel').addEventListener('click', (event) => {
                 if (event.target.id === 'configuration-panel') closeConfigurationPanel();
             });
@@ -3774,6 +4167,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             });
             document.getElementById('chat-input').addEventListener('input', syncActiveDraftFromInput);
             document.getElementById('chat-input').addEventListener('paste', handlePromptPaste);
+            document.getElementById('memorize-button').addEventListener('click', handleMemorizeClick);
             document.getElementById('commit-status-button').addEventListener('click', handleCommitClick);
             refreshCommitStatus();
             setInterval(refreshCommitStatus, COMMIT_STATUS_POLL_MS);

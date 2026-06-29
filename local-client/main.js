@@ -16,10 +16,12 @@ const {
   getDeepSeekBalance,
   sendCodexMessage,
   sendClaudeMessage,
+  buildPromptPreview,
   sendComboMessage,
   sendDeepSeekMessage,
   stopClaudeMessage,
   listConfigurationFiles,
+  listMemoryLocations,
   openConfigurationFile
 } = require('./mindshare-local-client');
 
@@ -1348,11 +1350,13 @@ ipcMain.handle('mindshare:automation-control', async (_event, payload = {}) => {
 ipcMain.handle('mindshare:codex-message', async (_event, payload) => sendCodexMessage(payload));
 ipcMain.handle('mindshare:claude-message', async (_event, payload) => sendClaudeMessage(payload));
 ipcMain.handle('mindshare:stop-message', async (_event, payload) => stopClaudeMessage(payload));
+ipcMain.handle('mindshare:prompt-preview', async (_event, payload) => buildPromptPreview(payload));
 ipcMain.handle('mindshare:combo-message', async (_event, payload) => sendComboMessage(payload));
 ipcMain.handle('mindshare:deepseek-connect', async (_event, payload) => connectDeepSeek(payload));
 ipcMain.handle('mindshare:deepseek-message', async (_event, payload) => sendDeepSeekMessage(payload));
 ipcMain.handle('mindshare:deepseek-balance', async () => getDeepSeekBalance());
 ipcMain.handle('mindshare:configuration-files', async () => getConfigurationFiles());
+ipcMain.handle('mindshare:memory-locations', async () => listMemoryLocations());
 ipcMain.handle('mindshare:git-status', async () => getGitStatus());
 ipcMain.handle('mindshare:git-commit-push', async (_event, payload) => gitCommitAndPush(payload));
 ipcMain.handle('mindshare:open-configuration-file', async (_event, payload) => openConfigurationFile(payload));

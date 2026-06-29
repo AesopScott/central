@@ -1640,7 +1640,7 @@ const configurationFileDescriptions = {
   'gate-exceptions.md': 'Approved gate exceptions for narrowly scoped files, roles, or functions.',
   'roles.md': 'Organization roster, role structure, reporting lines, and current standing notes.',
   'role-artifacts.md': 'Inventory of role artifacts, source locations, file gaps, and ownership status.',
-  'team-member-file-structure.md': 'Canonical checklist for required team-member files and role completeness.',
+  'file-map.md': 'Canonical checklist for required team-member files and role completeness.',
   'name.md': 'Identity card with name, title, organization, autonomy level, and role path.',
   'role-agent.md': 'Role contract defining job, scope, boundaries, handoffs, and operating authority.',
   'personality.md': 'Role voice, temperament, collaboration style, and interaction preferences.',
@@ -1724,12 +1724,12 @@ async function discoverDirectoryGroups(rootPath, label, category) {
 
 async function listConfigurationFiles() {
   const roots = sourceRoots();
-  const standardPath = path.join(roots.mindshare, 'roles', 'hr-director', 'team-member-file-structure.md');
+  const standardPath = path.join(roots.mindshare, 'file-map.md');
   const globalCandidates = [
     path.join(roots.mindshare, 'AGENTS.md'),
     path.join(roots.home, '.codex', 'tool-gate', 'gate.md'),
     path.join(roots.home, '.codex', 'tool-gate', 'gate-exceptions.md'),
-    path.join(roots.mindshare, 'roles', 'hr-director', 'team-member-file-structure.md'),
+    path.join(roots.mindshare, 'file-map.md'),
     path.join(roots.mindshareDrive, 'roles.md'),
     path.join(roots.mindshareDrive, 'role-artifacts.md'),
     path.join(roots.mindshare, 'local-client', 'mindshare-local-client.js')
@@ -1763,6 +1763,41 @@ async function listConfigurationFiles() {
       files: totalFiles
     }
   };
+}
+
+// Parse memory-locations.md. Each non-empty, non-comment line is:
+//   <key>, <path> > Note = <title-convention>
+// Returns one record per parseable line; malformed lines are skipped.
+function parseMemoryLocations(raw) {
+  const locations = [];
+  for (const rawLine of String(raw || '').split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    const commaIndex = line.indexOf(',');
+    if (commaIndex === -1) continue;
+    const key = line.slice(0, commaIndex).trim();
+    const remainder = line.slice(commaIndex + 1).trim();
+    const noteSplit = remainder.split(/\s*>\s*Note\s*=\s*/i);
+    const locationPath = noteSplit[0].trim();
+    const noteConvention = (noteSplit[1] || '').trim();
+    if (!key || !locationPath) continue;
+    locations.push({ key, path: locationPath, noteConvention });
+  }
+  return locations;
+}
+
+async function listMemoryLocations() {
+  const roots = sourceRoots();
+  const filePath = path.join(roots.mindshare, 'memory-locations.md');
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    return { ok: true, path: filePath, locations: parseMemoryLocations(raw) };
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return { ok: false, path: filePath, locations: [], error: 'memory-locations.md not found in repo root.' };
+    }
+    return { ok: false, path: filePath, locations: [], error: error.message || String(error) };
+  }
 }
 
 // Resolve the VS Code launcher: PATH first (code.cmd / code), then the
@@ -2603,6 +2638,184 @@ USER: ${message}
   return { ok: true, reply, tokenUsage };
 }
 
+// Rough, in-process token estimate. The real CLI tokenizer is not available
+// here, so this is chars/4 — labeled as an estimate everywhere it surfaces.
+const TOKEN_CHARS_PER_TOKEN = 4;
+function estimateTokens(value) {
+  const chars = String(value || '').length;
+  return Math.ceil(chars / TOKEN_CHARS_PER_TOKEN);
+}
+
+function previewRow(label, text, note) {
+  const value = String(text || '');
+  const row = {
+    label,
+    chars: value.length,
+    tokens: estimateTokens(value),
+    present: value.trim().length > 0
+  };
+  if (note) row.note = note;
+  return row;
+}
+
+// Honest Prompt View. Reconstructs exactly what MindShare assembles for a turn,
+// reusing the SAME helpers the live send paths use (providerRuntimeContext,
+// officeWorkspaceInstruction, hiddenOfficePrimerBlock, buildRolePromptContext,
+// compactTranscript, formatAttachments). Panel A is measured truth because
+// MindShare composes it. Panel B is the CLI-assembled layer MindShare never
+// holds — labeled, never faked. Panel C (prior completed sessions) is added by
+// the renderer from its own storage and is NOT injected into this prompt.
+function buildPromptPreview(payload = {}) {
+  const sessionId = String(payload?.sessionId || '');
+  const session = sessions.get(sessionId) || null;
+  const provider = String(payload?.provider || session?.provider || 'claude');
+  const model = payload?.model || (provider === 'claude' ? 'sonnet' : provider === 'deepseek' ? (process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash') : undefined);
+  const message = String(payload?.message || '');
+  const roleContext = payload?.roleContext || session?.roleContext || null;
+  const transcriptItems = Array.isArray(payload?.transcript)
+    ? payload.transcript
+    : (session ? session.messages.slice(-MAX_TRANSCRIPT_ITEMS) : []);
+  const attachments = Array.isArray(payload?.attachments) ? payload.attachments : [];
+
+  // Build the exact dynamic blocks the real send paths build.
+  const runtimeBlock = providerRuntimeContext(provider, model);
+  const primerBlock = hiddenOfficePrimerBlock(session);
+  const roleBlock = buildRolePromptContext(roleContext);
+  const transcript = compactTranscript(transcriptItems);
+  const transcriptBlock = transcript || '(new session)';
+  const attachmentBlock = formatAttachments(attachments);
+
+  // Reassemble the full prompt identically to sendClaudeMessage so the measured
+  // total matches what actually ships. Provider header text differs only in the
+  // transcript/attachment preamble wording; the token weight is equivalent.
+  const fullPrompt = `You are connected to the MindShare local office chat.
+
+Respond from inside the active role context when one is selected. Use first person as that role.
+
+${runtimeBlock}
+
+${officeWorkspaceInstruction}
+
+${primerBlock}
+
+${roleBlock}
+
+Recent conversation only. Older turns stay visible in MindShare but are not resent to keep CLI token use bounded:
+${transcriptBlock}
+
+Attached files for this turn:
+${attachmentBlock}
+
+If an attached file has a local path, you may inspect it if your CLI/runtime supports reading that file type. For image files, treat the local path as the image attachment reference.
+
+USER: ${message}
+`;
+
+  // Per-turn primer state, told honestly: a primer already sent earlier in the
+  // session is NOT re-injected, so it weighs 0 tokens this turn.
+  const primerSent = Boolean(session?.officePrimerSent);
+  const hasPrimer = Boolean(session && String(session.officePrimer || '').trim());
+  const primerNote = !hasPrimer
+    ? 'No office primer configured for this session.'
+    : primerSent
+      ? 'Already sent earlier this session — not re-injected this turn.'
+      : 'First turn — injected once, then hidden from the visible chat.';
+
+  // Role-catalog visibility: each canonical file as its own sized sub-row, with
+  // the SAME include/omit budget walk buildRolePromptContext uses. This is the
+  // roll_catalog blind spot made visible — real files, real sizes.
+  const roleFiles = [];
+  if (roleContext && Array.isArray(roleContext.files)) {
+    const fitted = [];
+    for (const file of roleContext.files.filter((candidate) => candidate.exists)) {
+      const section = `## ${file.fileName}\nPath: ${file.path}\n\n${truncateText(file.content, MAX_ROLE_FILE_CHARS)}`;
+      const included = pushWithinBudget(fitted, section, MAX_ROLE_CONTEXT_CHARS);
+      roleFiles.push({
+        fileName: file.fileName,
+        path: file.path,
+        chars: section.length,
+        tokens: estimateTokens(section),
+        included,
+        truncated: String(file.content || '').length > MAX_ROLE_FILE_CHARS
+      });
+    }
+    for (const file of roleContext.files.filter((candidate) => !candidate.exists)) {
+      roleFiles.push({ fileName: file.fileName, path: file.path, chars: 0, tokens: 0, included: false, missing: true });
+    }
+  }
+
+  // Transcript turn-by-turn breakdown (newest first), measured after the same
+  // per-turn and total-budget truncation the real prompt applies.
+  const measuredItems = (Array.isArray(transcriptItems) ? transcriptItems : [])
+    .slice(-MAX_TRANSCRIPT_ITEMS)
+    .map((item) => {
+      const role = String(item.role || 'message').toUpperCase();
+      const text = truncateText(item.content || item.text || '', MAX_TRANSCRIPT_ITEM_CHARS);
+      return `${role}: ${text}`;
+    })
+    .filter((text) => text.trim().length > 0);
+  const fittedItems = [];
+  for (const item of measuredItems) {
+    if (!pushWithinBudget(fittedItems, item, MAX_TRANSCRIPT_CHARS)) break;
+  }
+  const transcriptTurns = measuredItems.map((text, index) => ({
+    label: `Turn -${measuredItems.length - index}`,
+    role: text.split(':')[0],
+    chars: text.length,
+    tokens: estimateTokens(text),
+    included: index < fittedItems.length
+  })).reverse();
+
+  // Panel A — the named dynamic components, in prompt order.
+  const rows = [
+    previewRow('Runtime context (provider/model)', runtimeBlock),
+    previewRow('Office workspace instruction', officeWorkspaceInstruction),
+    { ...previewRow('Office primer (first turn only)', primerBlock), note: primerNote },
+    { ...previewRow('Role injection (role catalog expansion)', roleBlock), files: roleFiles },
+    { ...previewRow('Transcript (recent turns)', transcriptBlock), turns: transcriptTurns, budgetChars: MAX_TRANSCRIPT_CHARS },
+    previewRow('Attachments', attachmentBlock),
+    previewRow('Current USER message', message)
+  ];
+
+  const totalChars = fullPrompt.length;
+  const totalTokens = estimateTokens(fullPrompt);
+  const namedChars = rows.reduce((sum, row) => sum + row.chars, 0);
+  // Static scaffolding = the fixed template text wrapping the dynamic blocks.
+  const scaffoldChars = Math.max(0, totalChars - namedChars);
+  rows.push({
+    label: 'Template scaffolding (static wrapper text)',
+    chars: scaffoldChars,
+    tokens: estimateTokens('x'.repeat(scaffoldChars)),
+    present: scaffoldChars > 0,
+    note: 'Fixed instruction text MindShare wraps around the blocks above.'
+  });
+
+  // Panel B — assembled by the CLI/harness AFTER MindShare hands off stdin.
+  // MindShare never holds these bytes, so they are labeled, never measured.
+  const panelB = {
+    measured: false,
+    note: 'Assembled by the Claude CLI/harness after MindShare pipes the prompt above. MindShare never holds these bytes, so it cannot measure them. Sizes shown there would be invented.',
+    sources: [
+      'Obsidianify session packet (.obsidian-memory/CLAUDE_SESSION_CONTEXT.md)',
+      'Graphify graph memory (when invoked)',
+      '~/.claude/CLAUDE.md + ~/.claude/rules/** (global + project instructions)',
+      'SessionStart / caveman hooks (UserPromptSubmit, statusline)',
+      'MCP tool lists + deferred-tool reminders',
+      'Available skills + agent-type catalog'
+    ]
+  };
+
+  return {
+    ok: true,
+    provider,
+    model: model || null,
+    estimate: true,
+    estimateNote: `Token counts are estimates (~${TOKEN_CHARS_PER_TOKEN} chars/token). The CLI tokenizer runs out of process.`,
+    panelA: { rows, totalChars, totalTokens },
+    panelB
+  };
+}
+
 function stopClaudeMessage(payload) {
   const sessionId = String(payload?.sessionId || '');
   const child = activeChildren.get(sessionId);
@@ -2623,6 +2836,7 @@ module.exports = {
   loadConferenceRoomContext,
   listConferenceRoomInviteCandidates,
   listConfigurationFiles,
+  listMemoryLocations,
   openConfigurationFile,
   runTessLevel4Automation,
   getDeepSeekBalance,
@@ -2630,5 +2844,6 @@ module.exports = {
   sendClaudeMessage,
   sendComboMessage,
   sendDeepSeekMessage,
-  stopClaudeMessage
+  stopClaudeMessage,
+  buildPromptPreview
 };

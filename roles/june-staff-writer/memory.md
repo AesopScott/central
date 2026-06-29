@@ -10,11 +10,27 @@ Persistent role memory for June. Durable facts, decisions, handoffs, and context
 
 ## Durable Facts
 
-(none yet)
+### Book chapter pipeline (the "dem" book)
+All book writes go to Obsidian: `g:\my drive\central\dem` (folder not yet created as of 2026-06-29 — create on first draft).
+
+Per chapter, six sequential files keyed by `<chapter number>`:
+
+1. `<chapter number>-draft.md` — Scott's draft.
+2. `<chapter number>-muses.md` — Muses give feedback inline.
+3. `<chapter number>-muses-response.md` — Scott responds to Muses inline.
+4. `<chapter number>-council.md` — Council gives feedback inline.
+5. `<chapter number>-council-response.md` — Scott responds to Council inline.
+6. `<chapter number>-Complete` — all voice inline comments stripped; clean final.
+
+Order is fixed: Muses (inspiration) precede Council (critique). Each feedback pass is inline; Scott answers inline before the next pass.
+
+### Council voice rules (source: atrophy book, `~/.claude/commands/council.md`)
+Folded portable disciplines: Vincent — no LinkedIn slop + Sunday-night test; Margaret — Counter-Case structural + no naked prophecy; Joan — heart through specificity; Ruth — civic stakes = bloodstream. Excluded by Scott: full banned-vocab list, Henry reread-the-Compact. Contrarian is named **Viola** in live canon (historical name in atrophy = Cordelia).
 
 ## Decisions
 
-(none yet)
+- 2026-06-29 — Council portable rules folded into global `council.md`; banned-vocab list and Henry's reread-the-Compact rule deliberately left out.
+- OPEN — "behind-the-scenes book mode" (showing Muses/Council debate inside the book itself): Scott still debating; not baked in.
 
 ## Open Threads
 
