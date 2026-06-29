@@ -1,0 +1,91 @@
+﻿{
+    "generatedAt":  "2026-06-29T00:38:13.0538298Z",
+    "contentRoot":  ".",
+    "copiedSources":  [
+                          {
+                              "source":  "local-client/app-content/mindshare/public",
+                              "destination":  "mindshare/public",
+                              "type":  "canonical-directory"
+                          },
+                          {
+                              "source":  "local-client/app-content/mindshare/public",
+                              "destination":  "public",
+                              "type":  "mirror-directory"
+                          },
+                          {
+                              "source":  "mindshare/roles",
+                              "destination":  "mindshare/roles",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "mindshare/docs",
+                              "destination":  "mindshare/docs",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "mindshare/rooms",
+                              "destination":  "mindshare/rooms",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "mindshare-drive/roles.md",
+                              "destination":  "mindshare/global/roles.md",
+                              "type":  "file"
+                          },
+                          {
+                              "source":  "mindshare-drive/role-artifacts.md",
+                              "destination":  "mindshare/global/role-artifacts.md",
+                              "type":  "file"
+                          },
+                          {
+                              "source":  "mojo/agents",
+                              "destination":  "mojo/agents",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "mojo/assets/maps",
+                              "destination":  "mojo/assets/maps",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "mojo/maps",
+                              "destination":  "mojo/maps",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "queue.toml",
+                              "destination":  "mojo/automations/vik-handoff-check/queue.toml",
+                              "type":  "file"
+                          },
+                          {
+                              "source":  "channel_queue_guard_state.json",
+                              "destination":  "mojo/automations/vik-handoff-check/channel_queue_guard_state.json",
+                              "type":  "file"
+                          },
+                          {
+                              "source":  "reports",
+                              "destination":  "mojo/automations/vik-handoff-check/reports",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "level5-reports",
+                              "destination":  "mojo/automations/vik-handoff-check/level5-reports",
+                              "type":  "directory"
+                          },
+                          {
+                              "source":  "watch/agents",
+                              "destination":  "watch/agents",
+                              "type":  "directory"
+                          }
+                      ],
+    "missingSources":  [
+                           "mindshare/agents",
+                           "mindshare/catalogs",
+                           "mindshare/phases",
+                           "mindshare/scripts",
+                           "mindshare/skills",
+                           "mindshare/templates",
+                           "mindshare/AGENTS.md",
+                           "mindshare/project-foundation.md"
+                       ]
+}
