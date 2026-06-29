@@ -89,6 +89,28 @@
         #code-review-button:hover {
             color: #ffe1b8;
         }
+        /* Harnesses drawer — icons ported from Meridian Bifrost cockpit */
+        .harness-card-icon {
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .harness-group-orchestrator .harness-card-icon {
+            stroke: #57efff;
+            filter: drop-shadow(0 0 6px rgba(87, 239, 255, 0.5));
+        }
+        .harness-group-model .harness-card-icon {
+            stroke: #48ff91;
+            filter: drop-shadow(0 0 6px rgba(72, 255, 145, 0.55));
+        }
+        .harness-card {
+            transition: border-color 140ms ease, background 140ms ease;
+        }
+        .harness-card:hover {
+            border-color: rgba(87, 239, 255, 0.45);
+            background: rgba(255, 255, 255, 0.04);
+        }
         #commit-status-button.commit-status-dirty {
             border-color: rgba(229, 72, 72, 0.85);
             background: rgba(229, 72, 72, 0.18);
@@ -527,6 +549,10 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 <span class="font-display-lg text-body-lg text-primary font-bold tracking-tight" id="main-window-title">Agent Name</span>
 </div>
 <div class="flex items-center gap-6">
+<button class="flex items-center gap-2 glass-panel px-3 py-2 rounded-md border border-white/10 hover:border-primary/50 hover:bg-white/5 transition-all cursor-pointer" id="harnesses-button" type="button" title="Browse the Meridian model and orchestrator harnesses">
+<span class="material-symbols-outlined text-[18px] leading-none text-primary">grid_view</span>
+<span class="font-label-sm text-primary">Harnesses</span>
+</button>
 <button class="flex items-center gap-2 glass-panel px-3 py-2 rounded-md border border-white/10 hover:border-primary/50 hover:bg-white/5 transition-all cursor-pointer" id="connect-codex-button" type="button">
 <span class="provider-ready-dot w-2 h-2 rounded-full transition-all" id="codex-ready-dot" aria-hidden="true"></span>
 <span class="font-label-sm text-primary">Connect Codex</span>
@@ -567,6 +593,10 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 <div class="relative hidden" id="office-runs-control">
 <button class="glass-panel px-3 py-2 rounded-md text-primary silver-edge hover:border-primary/50 hover:text-primary-fixed transition-colors cursor-pointer" id="office-context-runs" type="button">Automation Runs</button>
 <div class="hidden absolute right-0 top-full mt-2 w-[620px] max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto custom-scrollbar opaque-dropdown silver-edge rounded-lg p-4 z-50 normal-case tracking-normal text-left" id="office-runs-dropdown"></div>
+</div>
+<div class="relative hidden" id="office-backlog-control">
+<button class="glass-panel px-3 py-2 rounded-md text-primary silver-edge hover:border-primary/50 hover:text-primary-fixed transition-colors cursor-pointer" id="office-context-backlog" type="button">Executive Backlog</button>
+<div class="hidden absolute right-0 top-full mt-2 w-[620px] max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto custom-scrollbar opaque-dropdown silver-edge rounded-lg p-4 z-50 normal-case tracking-normal text-left" id="office-backlog-dropdown"></div>
 </div>
 <div class="relative">
 <button class="glass-panel px-3 py-2 rounded-md text-on-surface-variant silver-edge hover:border-primary/50 hover:text-primary transition-colors cursor-pointer" id="office-context-title" type="button">Title</button>
@@ -678,6 +708,21 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 </button>
 </div>
 <div class="flex-1 overflow-y-auto custom-scrollbar p-4" id="prompt-view-body"></div>
+</div>
+</div>
+<div class="hidden absolute inset-y-0 right-0 z-40 w-[640px] max-w-[calc(100vw-2rem)] border-l border-primary-fixed-dim/30 bg-black/90 shadow-2xl backdrop-blur-xl" id="harnesses-drawer">
+<div class="flex h-full flex-col">
+<div class="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
+<div>
+<div class="font-label-sm text-[10px] uppercase tracking-[0.24em] text-primary">Ported from Meridian · Bifrost cockpit</div>
+<h3 class="mt-1 font-display-lg text-xl font-semibold text-primary-fixed">Harnesses</h3>
+<p class="mt-1 text-xs leading-relaxed text-on-surface-variant">Reference catalog only. Display-safe — no harness is wired to act from this drawer yet.</p>
+</div>
+<button class="rounded-md p-2 text-on-surface-variant hover:text-primary" id="harnesses-close" type="button" aria-label="Close harnesses drawer">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-4" id="harnesses-body"></div>
 </div>
 </div>
 </div>
@@ -1042,6 +1087,9 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
         const OFFICE_STATE_STORAGE_KEY = 'mindshare.officeSessions.v2';
         const NOTIFICATIONS_STORAGE_KEY = 'mindshare.sessionNotifications.v1';
         const AUTOMATION_RUNS_STORAGE_KEY = 'mindshare.automationRuns.v1';
+        const EXEC_BACKLOG_STORAGE_KEY = 'mindshare.execBacklog.v1';
+        const EXEC_BACKLOG_ROLES = new Set(['paige', 'rae']);
+        let execBacklog = [];
         const TESS_AUTOMATION_LAST_RUN_KEY = 'mindshare.tessLevel4Automation.lastRun.v1';
         const VIK_AUTOMATION_LAST_RUN_KEY = 'mindshare.vikAutomation.lastRun.v1';
         const TESS_AUTOMATION_MIN_INTERVAL_MS = 5 * 60 * 1000;
@@ -1382,6 +1430,60 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             }
         }
 
+        // Executive Backlog: a shared checklist scoped to Paige and Rae. Each item
+        // carries free-text notes. Stored in localStorage for now; a file-backed
+        // upgrade through the local client is a follow-up so the data lives in
+        // Paige's role folder across machines.
+        function persistExecBacklog() {
+            try {
+                localStorage.setItem(EXEC_BACKLOG_STORAGE_KEY, JSON.stringify(execBacklog.slice(0, 200)));
+            } catch (error) {
+                console.warn('Could not persist executive backlog.', error);
+            }
+        }
+
+        function restoreExecBacklog() {
+            try {
+                const raw = localStorage.getItem(EXEC_BACKLOG_STORAGE_KEY);
+                execBacklog = raw ? JSON.parse(raw).filter((item) => item && item.id).slice(0, 200) : [];
+            } catch (error) {
+                console.warn('Could not restore executive backlog.', error);
+                execBacklog = [];
+            }
+        }
+
+        function canViewExecBacklog(slug) {
+            return !!slug && EXEC_BACKLOG_ROLES.has(slug);
+        }
+
+        function addExecBacklogItem(text) {
+            const trimmed = String(text || '').trim();
+            if (!trimmed) return;
+            execBacklog = [
+                { id: `backlog-${Date.now()}-${execBacklog.length}`, text: trimmed, done: false, notes: '', createdAt: new Date().toISOString() },
+                ...execBacklog
+            ];
+            persistExecBacklog();
+            renderOfficeBacklogControl(findRoleEntry(activeRoleSlug));
+        }
+
+        function toggleExecBacklogItem(id) {
+            execBacklog = execBacklog.map((item) => item.id === id ? { ...item, done: !item.done } : item);
+            persistExecBacklog();
+            renderOfficeBacklogControl(findRoleEntry(activeRoleSlug));
+        }
+
+        function updateExecBacklogNote(id, notes) {
+            execBacklog = execBacklog.map((item) => item.id === id ? { ...item, notes: String(notes ?? '') } : item);
+            persistExecBacklog();
+        }
+
+        function removeExecBacklogItem(id) {
+            execBacklog = execBacklog.filter((item) => item.id !== id);
+            persistExecBacklog();
+            renderOfficeBacklogControl(findRoleEntry(activeRoleSlug));
+        }
+
         function ensureRoleSession(slug, name, title, level, department = '') {
             const entry = findRoleEntry(slug);
             const image = entry?.image || '';
@@ -1630,6 +1732,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             renderOfficeLevelDropdown('');
             renderOfficeAutonomyControl(null);
             renderOfficeRunsControl(null);
+            renderOfficeBacklogControl(null);
             renderTokenUsage(null);
             renderOfficeWorkingState(null);
             renderRoleSkillButtons(null);
@@ -1670,6 +1773,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             renderOfficeLevelDropdown(level);
             renderOfficeAutonomyControl(findRoleEntry(slug));
             renderOfficeRunsControl(findRoleEntry(slug));
+            renderOfficeBacklogControl(findRoleEntry(slug));
             renderTokenUsage(roleSession);
             renderOfficeWorkingState(roleSession);
             renderCodeReviewDrawer();
@@ -2131,12 +2235,17 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             document.getElementById('office-runs-dropdown')?.classList.add('hidden');
         }
 
+        function closeOfficeBacklogDropdown() {
+            document.getElementById('office-backlog-dropdown')?.classList.add('hidden');
+        }
+
         function closeContextDropdowns() {
             closeOfficeFilesDropdown();
             closeOfficeLevelDropdown();
             closeOfficeTitleDropdown();
             closeOfficeAutonomyDropdown();
             closeOfficeRunsDropdown();
+            closeOfficeBacklogDropdown();
         }
 
         function toggleOfficeFilesDropdown(event) {
@@ -2148,6 +2257,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             closeOfficeTitleDropdown();
             closeOfficeAutonomyDropdown();
             closeOfficeRunsDropdown();
+            closeOfficeBacklogDropdown();
             dropdown.classList.toggle('hidden');
         }
 
@@ -2197,6 +2307,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             closeOfficeTitleDropdown();
             closeOfficeAutonomyDropdown();
             closeOfficeRunsDropdown();
+            closeOfficeBacklogDropdown();
             dropdown.classList.toggle('hidden');
         }
 
@@ -2261,6 +2372,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             closeOfficeLevelDropdown();
             closeOfficeAutonomyDropdown();
             closeOfficeRunsDropdown();
+            closeOfficeBacklogDropdown();
             dropdown.classList.toggle('hidden');
         }
 
@@ -2321,6 +2433,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             closeOfficeLevelDropdown();
             closeOfficeTitleDropdown();
             closeOfficeRunsDropdown();
+            closeOfficeBacklogDropdown();
             dropdown.classList.toggle('hidden');
         }
 
@@ -2661,6 +2774,103 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
 
         function closePromptViewDrawer() {
             document.getElementById('prompt-view-drawer')?.classList.add('hidden');
+        }
+
+        // --- Harnesses: reference catalog ported from Meridian Bifrost cockpit ---
+        // Display-only. Icons + descriptions mirror Meridian index.html harness docks.
+        // No harness is wired to act from here; wiring is a separate, gated step.
+        const HARNESS_ORCHESTRATOR = [
+            { name: 'Prime', sub: 'Core', icon: '<circle cx="32" cy="32" r="16"></circle><path d="M32 10v10M32 44v10M10 32h10M44 32h10"></path>', desc: 'Top-level orchestrator. Holds intent, priority arbitration, and the "why this next" decision across active work.' },
+            { name: 'Bifrost', sub: 'UI', icon: '<path d="M14 42c9-18 27-18 36 0"></path><path d="M18 48h28"></path><path d="M24 36h16"></path>', desc: 'Command-center interface and presentation layer. Renders harness and session state to the operator.' },
+            { name: 'Relay', sub: 'Models', icon: '<path d="M14 32h14"></path><path d="M36 20l14 12-14 12"></path><path d="M28 20l14 12-14 12"></path>', desc: 'Routes work to the right model/provider path: selection, fallback, and route-quality learning.' },
+            { name: 'Beacon', sub: 'Heartbeat', icon: '<circle cx="32" cy="32" r="20"></circle><path d="M14 34h10l4-10 7 20 5-14h10"></path>', desc: 'Liveness and health monitoring. Watches sessions and workers for stalls and heartbeat anomalies.' },
+            { name: 'Security', sub: 'Guardrails', icon: '<path d="M32 11l6 15 16 2-12 10 4 16-14-8-14 8 4-16-12-10 16-2z"></path><circle cx="32" cy="32" r="6"></circle>', desc: 'Guardrail runtime: secret scanning, permission policy, risky-action approval gates, credential boundaries.' },
+            { name: 'Aegis', sub: 'Proofs', icon: '<path d="M32 10l18 8v13c0 12-8 20-18 23-10-3-18-11-18-23V18z"></path><path d="M24 32l6 6 12-14"></path>', desc: 'Proof and crosscheck authority. Scores evidence sufficiency before work is trusted; manages waivers.' },
+            { name: 'Compass', sub: 'Projects', icon: '<circle cx="32" cy="32" r="18"></circle><path d="M32 14l7 25-7-4-7 4z"></path><path d="M32 14v21"></path>', desc: 'Project ontology and scope. Tracks objectives, drift, and cross-project dependencies and handoffs.' },
+            { name: 'Vulcan', sub: 'Sessions', icon: '<path d="M12 27h30l10 8H37l-6 8H17l5-8H12z"></path><path d="M20 43h22"></path><path d="M24 50h14"></path><path d="M27 43l-3 7M37 43l3 7"></path>', desc: 'Session lifecycle: open, close/write-through, suspend/resume, recovery, and safe migration across worktrees.' },
+            { name: 'Atlas', sub: 'Knowledge', icon: '<circle cx="32" cy="32" r="18"></circle><path d="M14 32h36M32 14c7 8 7 28 0 36M32 14c-7-8-7-28 0-36"></path>', desc: 'Knowledge retrieval and context packing. Semantic search, citation ranking, and chunk lineage.' },
+            { name: 'Charon', sub: 'Navigation', icon: '<path d="M32 10l15 39-15-8-15 8z"></path><path d="M32 10v31"></path><path d="M18 53c8-6 20-6 28 0"></path><circle cx="20" cy="52" r="3"></circle><circle cx="44" cy="52" r="3"></circle>', desc: 'FileMap navigation: ownership graph, impact analysis, and capability-to-code-to-proof paths.' },
+            { name: 'Arbiter', sub: 'Reviews', icon: '<path d="M17 16h30v32H17z"></path><path d="M23 25h18M23 33h18M23 41h10"></path><path d="M14 20h6M14 44h6"></path>', desc: 'Review queue: severity calibration, duplicate-finding collapse, assignment, and repair verification.' },
+            { name: 'Workflow', sub: 'Sub-agents', icon: '<circle cx="18" cy="32" r="6"></circle><circle cx="32" cy="18" r="6"></circle><circle cx="46" cy="32" r="6"></circle><path d="M23 28l5-6M37 22l5 6M24 32h16"></path>', desc: 'Sub-agent dispatch and task planning. Lane capacity, worker handoff, and result ingestion.' },
+            { name: 'Federation', sub: 'Network', icon: '<circle cx="32" cy="32" r="5"></circle><circle cx="18" cy="20" r="5"></circle><circle cx="46" cy="20" r="5"></circle><circle cx="32" cy="49" r="5"></circle><path d="M22 23l6 6M42 23l-6 6M32 37v7"></path>', desc: 'Multi-node protocol: trust handshake, remote capability discovery, packet signing, degraded behavior.' },
+            { name: 'Echo', sub: 'Memory', icon: '<rect x="18" y="18" width="28" height="28" rx="6"></rect><rect x="26" y="26" width="12" height="12" rx="2"></rect><path d="M24 10v8M32 10v8M40 10v8M24 46v8M32 46v8M40 46v8M10 24h8M10 32h8M10 40h8M46 24h8M46 32h8M46 40h8"></path>', desc: 'Durable memory: writeable recall, decay/expiry, conflict handling, and memory provenance.' },
+            { name: 'Ratchet', sub: 'Tools', icon: '<path d="M41 13a11 11 0 0 0-13 13L15 39a7 7 0 0 0 10 10l13-13a11 11 0 0 0 13-13l-8 8-8-8z"></path><circle cx="20" cy="44" r="2"></circle>', desc: 'Tool registry and permissioned execution. Dry-run, reversible-action planning, and sandbox policy.' },
+            { name: 'Source', sub: 'Git', icon: '<circle cx="20" cy="20" r="5"></circle><circle cx="44" cy="32" r="5"></circle><circle cx="20" cy="44" r="5"></circle><path d="M25 20h8a11 11 0 0 1 11 11v1M20 25v14M25 44h9a10 10 0 0 0 10-10v-2"></path>', desc: 'Git control: branch leases, merge-conflict planning, diff risk scoring, and main-write safety.' },
+            { name: 'Vision', sub: 'Browser', icon: '<rect x="13" y="16" width="38" height="32" rx="4"></rect><path d="M13 25h38"></path><circle cx="20" cy="21" r="1.5"></circle><circle cx="26" cy="21" r="1.5"></circle><path d="M24 37h16M32 29l8 8-8 8"></path>', desc: 'Browser/page capture: visual diffing, screenshot evidence, DOM/action planning, safe navigation.' },
+            { name: 'Autonomy', sub: 'Release', icon: '<path d="M34 12c8 2 14 8 16 16L36 42 22 28z"></path><path d="M22 28l-8 2 6 6M36 42l-2 8-6-6"></path><circle cx="38" cy="24" r="4"></circle><path d="M20 44c-4 1-7 4-8 8 4-1 7-4 8-8z"></path>', desc: 'Release readiness: deployment plans, changelog/proof packaging, rollback gates, and release risk forecast.' }
+        ];
+        const HARNESS_MODEL = [
+            { name: 'Provider', sub: 'Adapter', icon: '<path d="M32 12l16 9v18L32 48l-16-9V21z"></path><path d="M32 12v18l16 9M32 30L16 21M32 30v18"></path>', desc: 'Connects to a model or vendor through a controlled boundary.' },
+            { name: 'Identity', sub: 'Model ID', icon: '<rect x="16" y="17" width="32" height="30" rx="5"></rect><path d="M24 27h16M24 35h10"></path><circle cx="42" cy="38" r="4"></circle><path d="M42 42v7"></path>', desc: 'Preserves exact provider, model, and version identity.' },
+            { name: 'Select', sub: 'Match', icon: '<circle cx="22" cy="24" r="7"></circle><circle cx="42" cy="24" r="7"></circle><path d="M18 44h28"></path><path d="M32 31v13"></path><path d="M24 36l8 8 8-8"></path>', desc: 'Chooses candidate models by task, tier, capability, and trust.' },
+            { name: 'Route', sub: 'Dispatch', icon: '<path d="M14 22h15"></path><path d="M38 16l12 12-12 12"></path><path d="M14 44h20"></path><path d="M42 36l8 8-8 8"></path>', desc: 'Sends approved work to the selected model path.' },
+            { name: 'Fallback', sub: 'Recover', icon: '<path d="M45 22a17 17 0 1 0 2 18"></path><path d="M45 14v8h-8"></path><path d="M31 24v11l8 4"></path>', desc: 'Handles blocked, failed, degraded, or unavailable routes.' },
+            { name: 'Verify', sub: 'Proof', icon: '<path d="M32 11l18 8v12c0 11-7 18-18 22-11-4-18-11-18-22V19z"></path><path d="M23 33l7 7 13-17"></path>', desc: 'Confirms provider, response, route, and output evidence.' },
+            { name: 'Cost', sub: 'Budget', icon: '<path d="M18 46h28"></path><path d="M22 46V24l10-8 10 8v22"></path><path d="M27 30h10M27 38h10"></path>', desc: 'Tracks spend posture and token/call economics.' },
+            { name: 'Latency', sub: 'Speed', icon: '<circle cx="32" cy="34" r="18"></circle><path d="M32 16v18l10 6"></path><path d="M24 10h16"></path><path d="M16 18l-5-5M48 18l5-5"></path>', desc: 'Measures response time and availability behavior.' },
+            { name: 'Context', sub: 'Window', icon: '<path d="M18 16h28v32H18z"></path><path d="M24 24h16M24 32h16M24 40h10"></path><path d="M14 20h4M14 44h4"></path>', desc: 'Enforces model context limits and fit.' },
+            { name: 'Prompt', sub: 'Payload', icon: '<path d="M16 18h32v22H27l-11 8z"></path><path d="M24 27h16M24 34h10"></path>', desc: 'Holds the exact admitted input sent to the model.' },
+            { name: 'Policy', sub: 'Rules', icon: '<path d="M22 14h20l8 8v28H14V22z"></path><path d="M42 14v10h10"></path><path d="M23 33h18M23 41h14"></path>', desc: 'Applies route, task, tier, and provider constraints.' },
+            { name: 'Safety', sub: 'Guard', icon: '<path d="M32 10l18 8v13c0 12-8 20-18 23-10-3-18-11-18-23V18z"></path><path d="M32 22v14"></path><path d="M32 44h.1"></path>', desc: 'Blocks unsafe or unauthorized model use.' },
+            { name: 'Privacy', sub: 'Data', icon: '<rect x="18" y="29" width="28" height="20" rx="4"></rect><path d="M24 29v-7a8 8 0 0 1 16 0v7"></path><circle cx="32" cy="39" r="2"></circle>', desc: 'Prevents secret, credential, or sensitive-data leakage.' },
+            { name: 'Tools', sub: 'Calls', icon: '<path d="M41 13a11 11 0 0 0-13 13L15 39a7 7 0 0 0 10 10l13-13a11 11 0 0 0 13-13l-8 8-8-8z"></path><circle cx="20" cy="44" r="2"></circle>', desc: 'Controls whether model/tool-call behavior is allowed.' },
+            { name: 'Compare', sub: 'Council', icon: '<circle cx="22" cy="32" r="12"></circle><circle cx="42" cy="32" r="12"></circle><path d="M32 20v24"></path>', desc: 'Supports multi-model or multi-lane comparison.' },
+            { name: 'Trace', sub: 'Audit', icon: '<circle cx="18" cy="20" r="5"></circle><circle cx="32" cy="32" r="5"></circle><circle cx="46" cy="44" r="5"></circle><path d="M22 23l6 6M36 35l6 6"></path><path d="M18 25v20h23"></path>', desc: 'Records route, payload hash, response, and evidence.' },
+            { name: 'Goal', sub: 'Intent', icon: '<circle cx="32" cy="32" r="20"></circle><circle cx="32" cy="32" r="10"></circle><circle cx="32" cy="32" r="3"></circle><path d="M46 18l6-6M46 18h8M46 18v-8"></path>', desc: 'Binds model work to the orchestrator objective.' },
+            { name: 'Payload', sub: 'Hash', icon: '<rect x="16" y="18" width="32" height="28" rx="4"></rect><path d="M22 27h20M22 35h14"></path><path d="M20 52l24-40"></path>', desc: 'Creates a verifiable fingerprint of the exact prompt sent.' },
+            { name: 'Response', sub: 'Output', icon: '<path d="M15 18h34v20H29l-14 10z"></path><path d="M23 27h18M23 34h10"></path><path d="M41 44h8M45 40v8"></path>', desc: 'Captures the model-returned content as a controlled artifact.' },
+            { name: 'Evidence', sub: 'Proof', icon: '<path d="M18 14h24l8 8v28H18z"></path><path d="M42 14v10h8"></path><path d="M25 35l5 5 11-14"></path>', desc: 'Links model output to tests, citations, reviews, or validation records.' },
+            { name: 'Trust', sub: 'State', icon: '<path d="M32 10l18 8v14c0 11-8 18-18 22-10-4-18-11-18-22V18z"></path><path d="M24 33h16"></path><path d="M28 27h8"></path><path d="M28 39h8"></path>', desc: 'Tracks whether a provider/model route is direct, reviewed, blocked, or expired.' }
+        ];
+
+        function harnessCardHtml(h) {
+            return `
+                <div class="harness-card flex gap-3 rounded-lg border border-white/10 bg-surface-container-low/40 p-3">
+                    <div class="shrink-0 flex h-12 w-12 items-center justify-center rounded-md border border-white/10 bg-black/40">
+                        <svg class="harness-card-icon h-7 w-7" viewBox="0 0 64 64" aria-hidden="true">${h.icon}</svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-baseline gap-2">
+                            <span class="font-display-lg text-sm font-semibold text-on-surface">${escapeHtml(h.name)}</span>
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant/70">${escapeHtml(h.sub)}</span>
+                        </div>
+                        <p class="mt-0.5 text-xs leading-relaxed text-on-surface-variant">${escapeHtml(h.desc)}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function harnessSectionHtml(title, subtitle, groupClass, items) {
+            return `
+                <section class="${groupClass} mb-6">
+                    <div class="mb-2 flex items-baseline justify-between">
+                        <h4 class="font-label-sm text-[11px] uppercase tracking-[0.24em] text-primary">${escapeHtml(title)}</h4>
+                        <span class="font-label-sm text-[10px] text-on-surface-variant/60">${items.length}</span>
+                    </div>
+                    <p class="mb-3 text-[11px] leading-relaxed text-on-surface-variant/70">${escapeHtml(subtitle)}</p>
+                    <div class="grid grid-cols-1 gap-2">${items.map(harnessCardHtml).join('')}</div>
+                </section>
+            `;
+        }
+
+        function renderHarnessesDrawer() {
+            const body = document.getElementById('harnesses-body');
+            if (!body) return;
+            body.innerHTML = `
+                ${harnessSectionHtml('Orchestrator Harnesses', 'The control plane — what coordinates sessions, work, and authority.', 'harness-group-orchestrator', HARNESS_ORCHESTRATOR)}
+                ${harnessSectionHtml('Model Harness Layer', 'The per-call boundary — what governs each model request end to end.', 'harness-group-model', HARNESS_MODEL)}
+            `;
+        }
+
+        function openHarnessesDrawer() {
+            closeCodeReviewDrawer();
+            closePromptViewDrawer();
+            renderHarnessesDrawer();
+            document.getElementById('harnesses-drawer')?.classList.remove('hidden');
+        }
+
+        function closeHarnessesDrawer() {
+            document.getElementById('harnesses-drawer')?.classList.add('hidden');
         }
 
         function closeConfigurationPanel() {
@@ -3137,6 +3347,84 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             closeOfficeLevelDropdown();
             closeOfficeTitleDropdown();
             closeOfficeAutonomyDropdown();
+            closeOfficeBacklogDropdown();
+            dropdown.classList.toggle('hidden');
+        }
+
+        function renderOfficeBacklogControl(entry) {
+            const control = document.getElementById('office-backlog-control');
+            const dropdown = document.getElementById('office-backlog-dropdown');
+            const button = document.getElementById('office-context-backlog');
+            if (!control || !dropdown || !button) return;
+            const canView = canViewExecBacklog(activeRoleSlug);
+            control.classList.toggle('hidden', !canView);
+            if (!canView) {
+                dropdown.classList.add('hidden');
+                dropdown.innerHTML = '';
+                return;
+            }
+            const openCount = execBacklog.filter((item) => !item.done).length;
+            button.textContent = openCount ? `Executive Backlog (${openCount})` : 'Executive Backlog';
+            const itemsHtml = execBacklog.length
+                ? execBacklog.map((item) => `
+                    <div class="rounded-lg border border-white/10 bg-surface-container-lowest p-3">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" class="mt-1 h-4 w-4 shrink-0 accent-primary cursor-pointer" data-backlog-toggle="${escapeHtml(item.id)}" ${item.done ? 'checked' : ''}>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-sm font-medium ${item.done ? 'text-on-surface-variant line-through' : 'text-on-surface'}">${escapeHtml(item.text)}</div>
+                                <textarea class="mt-2 w-full rounded-md border border-white/10 bg-surface-container-low/60 p-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/50 focus:outline-none" rows="2" placeholder="Notes for this item..." data-backlog-note="${escapeHtml(item.id)}">${escapeHtml(item.notes)}</textarea>
+                            </div>
+                            <button class="shrink-0 text-on-surface-variant hover:text-red-300 transition-colors" type="button" data-backlog-remove="${escapeHtml(item.id)}" title="Remove item">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('')
+                : `<div class="rounded-lg border border-white/10 bg-surface-container-lowest p-4 text-sm text-on-surface-variant">No backlog items yet. Add the first one below.</div>`;
+            dropdown.innerHTML = `
+                <div class="flex items-start justify-between gap-4 border-b border-white/10 pb-3">
+                    <div>
+                        <div class="font-label-sm text-[10px] uppercase tracking-widest text-primary">Executive Backlog</div>
+                        <div class="mt-1 font-body-md text-sm text-on-surface">Shared between Paige and Rae</div>
+                    </div>
+                    <button class="text-on-surface-variant hover:text-primary" type="button" data-close-backlog>
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <input class="flex-1 rounded-md border border-white/10 bg-surface-container-low/60 px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/50 focus:outline-none" type="text" placeholder="Add a backlog item..." data-backlog-input>
+                    <button class="glass-panel px-3 py-2 rounded-md text-primary silver-edge hover:border-primary/60 transition-colors" type="button" data-backlog-add>Add</button>
+                </div>
+                <div class="mt-4 space-y-3">${itemsHtml}</div>
+            `;
+            const input = dropdown.querySelector('[data-backlog-input]');
+            const submit = () => { if (input) addExecBacklogItem(input.value); };
+            dropdown.querySelector('[data-backlog-add]')?.addEventListener('click', submit);
+            input?.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') { event.preventDefault(); submit(); }
+            });
+            dropdown.querySelector('[data-close-backlog]')?.addEventListener('click', closeOfficeBacklogDropdown);
+            dropdown.querySelectorAll('[data-backlog-toggle]').forEach((el) => {
+                el.addEventListener('click', (event) => { event.stopPropagation(); toggleExecBacklogItem(el.dataset.backlogToggle); });
+            });
+            dropdown.querySelectorAll('[data-backlog-remove]').forEach((el) => {
+                el.addEventListener('click', () => removeExecBacklogItem(el.dataset.backlogRemove));
+            });
+            dropdown.querySelectorAll('[data-backlog-note]').forEach((el) => {
+                el.addEventListener('input', () => updateExecBacklogNote(el.dataset.backlogNote, el.value));
+            });
+        }
+
+        function toggleOfficeBacklogDropdown(event) {
+            event?.stopPropagation();
+            const dropdown = document.getElementById('office-backlog-dropdown');
+            if (!dropdown || !canViewExecBacklog(activeRoleSlug)) return;
+            renderOfficeBacklogControl(findRoleEntry(activeRoleSlug));
+            closeOfficeFilesDropdown();
+            closeOfficeLevelDropdown();
+            closeOfficeTitleDropdown();
+            closeOfficeAutonomyDropdown();
+            closeOfficeRunsDropdown();
             dropdown.classList.toggle('hidden');
         }
 
@@ -4018,6 +4306,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             renderOfficeLevelDropdown(roleSession.level);
             renderOfficeAutonomyControl(findRoleEntry(roleSession.slug));
             renderOfficeRunsControl(findRoleEntry(roleSession.slug));
+            renderOfficeBacklogControl(findRoleEntry(roleSession.slug));
             renderTokenUsage(roleSession);
             renderOfficeWorkingState(roleSession);
             latestCodeReviews = Array.isArray(roleSession.codeReviews) ? roleSession.codeReviews : [];
@@ -4039,6 +4328,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             renderSessionNotifications();
             renderRecentMenu();
             restoreAutomationRuns();
+            restoreExecBacklog();
             const params = new URLSearchParams(window.location.search);
             const requestedDivision = params.get('division') || 'strategy-and-operations';
             const requestedRole = params.get('role');
@@ -4094,6 +4384,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             document.getElementById('code-review-close').addEventListener('click', closeCodeReviewDrawer);
             document.getElementById('prompt-view-button').addEventListener('click', openPromptViewDrawer);
             document.getElementById('prompt-view-close').addEventListener('click', closePromptViewDrawer);
+            document.getElementById('harnesses-button').addEventListener('click', openHarnessesDrawer);
+            document.getElementById('harnesses-close').addEventListener('click', closeHarnessesDrawer);
             document.getElementById('work-queue-button').addEventListener('click', toggleWorkQueuePanel);
             document.getElementById('work-queue-close').addEventListener('click', closeWorkQueuePanel);
             document.getElementById('work-queue-panel').addEventListener('click', (event) => {
@@ -4149,6 +4441,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             document.getElementById('office-autonomy-dropdown').addEventListener('click', (event) => event.stopPropagation());
             document.getElementById('office-context-runs').addEventListener('click', toggleOfficeRunsDropdown);
             document.getElementById('office-runs-dropdown').addEventListener('click', (event) => event.stopPropagation());
+            document.getElementById('office-context-backlog').addEventListener('click', toggleOfficeBacklogDropdown);
+            document.getElementById('office-backlog-dropdown').addEventListener('click', (event) => event.stopPropagation());
             document.getElementById('office-context-level').addEventListener('click', toggleOfficeLevelDropdown);
             document.getElementById('office-level-dropdown').addEventListener('click', (event) => event.stopPropagation());
             document.getElementById('office-context-files').addEventListener('click', toggleOfficeFilesDropdown);

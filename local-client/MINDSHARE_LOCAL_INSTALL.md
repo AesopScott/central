@@ -1,6 +1,8 @@
 # MindShare Local Development Install
 
-This is the current development path for connecting the MindShare office UI to local Codex CLI.
+This is the current development path for connecting the MindShare office UI to the local Codex CLI and Claude CLI.
+
+> New here? Start with the repo-root [`README.md`](../README.md) for prerequisites and the fastest start path. This file covers the dev-install detail.
 
 ## Preferred Local Path
 
@@ -16,15 +18,16 @@ The app loads:
 
 - `C:\Users\scott\Code\central\public\index.html` (canonical Central UI; `main.js` loads this at boot)
 - `preload.js`, which exposes `window.MindShareLocalClient`
-- `mindshare-local-client.js`, which checks Codex install/login state and sends prompts through local Codex CLI
+- `mindshare-local-client.js`, which checks Codex/Claude install/login state and sends prompts through the local CLI
 
 ## Authentication
 
-Codex CLI must be installed and logged in locally. The app checks:
+The Codex CLI and/or Claude CLI must be installed and logged in locally. Per
+provider, the app checks:
 
-- whether Codex can be launched
-- whether `codex login status` reports local ChatGPT login
-- whether `codex exec` can produce a reply
+- whether the CLI can be launched
+- whether login status reports a local subscription login (ChatGPT for Codex)
+- whether the CLI can produce a reply (e.g. `codex exec`)
 
 ## Product Note
 
