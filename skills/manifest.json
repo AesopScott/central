@@ -1,0 +1,324 @@
+{
+  "generated_from": "roles/skills-registry.json",
+  "registry_version": "0.1.0",
+  "count": 45,
+  "repo_raw_base": "https://raw.githubusercontent.com/AesopScott/central/main/skills",
+  "repo_blob_base": "https://github.com/AesopScott/central/blob/main/skills",
+  "skills": [
+    {
+      "skill": "exec-brief",
+      "owner": "rae-chief-executive-officer",
+      "status": "draft",
+      "path": "skills/exec-brief/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/exec-brief/SKILL.md"
+    },
+    {
+      "skill": "role",
+      "owner": "ana-recruiter",
+      "status": "modify-existing",
+      "path": "skills/role/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/role/SKILL.md"
+    },
+    {
+      "skill": "assign-backlog",
+      "owner": "cal-program-manager",
+      "status": "draft",
+      "path": "skills/assign-backlog/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/assign-backlog/SKILL.md"
+    },
+    {
+      "skill": "comms-check",
+      "owner": "mae-communications-director",
+      "status": "draft",
+      "path": "skills/comms-check/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/comms-check/SKILL.md"
+    },
+    {
+      "skill": "release-git",
+      "owner": "reid-release-manager",
+      "status": "draft",
+      "path": "skills/release-git/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/release-git/SKILL.md"
+    },
+    {
+      "skill": "commit-git",
+      "owner": "reid-release-manager",
+      "status": "owner-gated",
+      "path": "skills/commit-git/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/commit-git/SKILL.md"
+    },
+    {
+      "skill": "agentify",
+      "owner": "tess-autonomy-engineer",
+      "status": "owner-gated",
+      "path": "skills/agentify/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/agentify/SKILL.md"
+    },
+    {
+      "skill": "automation-review",
+      "owner": "tess-autonomy-engineer",
+      "status": "owner-gated",
+      "path": "skills/automation-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/automation-review/SKILL.md"
+    },
+    {
+      "skill": "gate-check",
+      "owner": "tess-autonomy-engineer",
+      "status": "owner-gated",
+      "path": "skills/gate-check/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/gate-check/SKILL.md"
+    },
+    {
+      "skill": "operationalize",
+      "owner": "cole-hr-director",
+      "status": "draft",
+      "path": "skills/operationalize/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/operationalize/SKILL.md"
+    },
+    {
+      "skill": "validate-role-files",
+      "owner": "cole-hr-director",
+      "status": "draft",
+      "path": "skills/validate-role-files/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/validate-role-files/SKILL.md"
+    },
+    {
+      "skill": "inspire-writing",
+      "owner": "june-staff-writer",
+      "status": "draft",
+      "path": "skills/inspire-writing/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/inspire-writing/SKILL.md"
+    },
+    {
+      "skill": "daily-brief",
+      "owner": "paige-executive-assistant",
+      "status": "owner-gated",
+      "path": "skills/daily-brief/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/daily-brief/SKILL.md"
+    },
+    {
+      "skill": "accounting",
+      "owner": "finn-finance-director",
+      "status": "owner-gated",
+      "path": "skills/accounting/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/accounting/SKILL.md"
+    },
+    {
+      "skill": "visualize-schema",
+      "owner": "imani-data-engineering-director",
+      "status": "draft",
+      "path": "skills/visualize-schema/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/visualize-schema/SKILL.md"
+    },
+    {
+      "skill": "route-guest",
+      "owner": "mara-front-desk-administrator",
+      "status": "draft",
+      "path": "skills/route-guest/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/route-guest/SKILL.md"
+    },
+    {
+      "skill": "troubleshoot",
+      "owner": "lane-lab-operator",
+      "status": "draft",
+      "path": "skills/troubleshoot/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/troubleshoot/SKILL.md"
+    },
+    {
+      "skill": "research-ai-sec",
+      "owner": "vik-program-architect",
+      "status": "draft",
+      "path": "skills/research-ai-sec/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/research-ai-sec/SKILL.md"
+    },
+    {
+      "skill": "code-check",
+      "owner": "bea-ai-engineer",
+      "status": "owner-gated",
+      "path": "skills/code-check/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/code-check/SKILL.md"
+    },
+    {
+      "skill": "web-check",
+      "owner": "liz-website-manager",
+      "status": "draft",
+      "path": "skills/web-check/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/web-check/SKILL.md"
+    },
+    {
+      "skill": "meetup-check",
+      "owner": "jay-meetup-coordinator",
+      "status": "owner-gated",
+      "path": "skills/meetup-check/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/meetup-check/SKILL.md"
+    },
+    {
+      "skill": "theo-ai-review",
+      "owner": "theo-ai-systems-engineering-director",
+      "status": "draft",
+      "path": "skills/theo-ai-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/theo-ai-review/SKILL.md"
+    },
+    {
+      "skill": "isla-comply",
+      "owner": "isla-compliance-director",
+      "status": "draft",
+      "path": "skills/isla-comply/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/isla-comply/SKILL.md"
+    },
+    {
+      "skill": "jordan-cs-pulse",
+      "owner": "jordan-customer-success-director",
+      "status": "draft",
+      "path": "skills/jordan-cs-pulse/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/jordan-cs-pulse/SKILL.md"
+    },
+    {
+      "skill": "nia-eng-review",
+      "owner": "nia-engineering-director",
+      "status": "draft",
+      "path": "skills/nia-eng-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/nia-eng-review/SKILL.md"
+    },
+    {
+      "skill": "leon-cadence",
+      "owner": "leon-executive-operations-director",
+      "status": "draft",
+      "path": "skills/leon-cadence/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/leon-cadence/SKILL.md"
+    },
+    {
+      "skill": "kai-ux-review",
+      "owner": "kai-experience-design-director",
+      "status": "draft",
+      "path": "skills/kai-ux-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/kai-ux-review/SKILL.md"
+    },
+    {
+      "skill": "adrian-legal-gate",
+      "owner": "adrian-legal-director",
+      "status": "draft",
+      "path": "skills/adrian-legal-gate/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/adrian-legal-gate/SKILL.md"
+    },
+    {
+      "skill": "morgan-ops-review",
+      "owner": "morgan-operations-director",
+      "status": "draft",
+      "path": "skills/morgan-ops-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/morgan-ops-review/SKILL.md"
+    },
+    {
+      "skill": "celia-partner-intake",
+      "owner": "celia-partnerships-director",
+      "status": "draft",
+      "path": "skills/celia-partner-intake/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/celia-partner-intake/SKILL.md"
+    },
+    {
+      "skill": "mila-people-pulse",
+      "owner": "mila-people-operations-director",
+      "status": "draft",
+      "path": "skills/mila-people-pulse/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/mila-people-pulse/SKILL.md"
+    },
+    {
+      "skill": "mateo-platform-review",
+      "owner": "mateo-platform-engineering-director",
+      "status": "draft",
+      "path": "skills/mateo-platform-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/mateo-platform-review/SKILL.md"
+    },
+    {
+      "skill": "mira-project-sweep",
+      "owner": "mira-pmo-director",
+      "status": "draft",
+      "path": "skills/mira-project-sweep/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/mira-project-sweep/SKILL.md"
+    },
+    {
+      "skill": "priya-vision-check",
+      "owner": "priya-product-director",
+      "status": "draft",
+      "path": "skills/priya-vision-check/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/priya-vision-check/SKILL.md"
+    },
+    {
+      "skill": "gabe-spec-review",
+      "owner": "gabe-product-management-director",
+      "status": "draft",
+      "path": "skills/gabe-spec-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/gabe-spec-review/SKILL.md"
+    },
+    {
+      "skill": "elise-rollout-check",
+      "owner": "elise-product-operations-director",
+      "status": "draft",
+      "path": "skills/elise-rollout-check/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/elise-rollout-check/SKILL.md"
+    },
+    {
+      "skill": "sloane-revenue-review",
+      "owner": "sloane-revenue-director",
+      "status": "draft",
+      "path": "skills/sloane-revenue-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/sloane-revenue-review/SKILL.md"
+    },
+    {
+      "skill": "drew-pipeline-review",
+      "owner": "drew-sales-director",
+      "status": "draft",
+      "path": "skills/drew-pipeline-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/drew-pipeline-review/SKILL.md"
+    },
+    {
+      "skill": "harper-security-review",
+      "owner": "harper-security-engineering-director",
+      "status": "draft",
+      "path": "skills/harper-security-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/harper-security-review/SKILL.md"
+    },
+    {
+      "skill": "nora-service-review",
+      "owner": "nora-service-design-director",
+      "status": "draft",
+      "path": "skills/nora-service-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/nora-service-review/SKILL.md"
+    },
+    {
+      "skill": "jill-staffops-review",
+      "owner": "june-staff-operations-director",
+      "status": "draft",
+      "path": "skills/jill-staffops-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/jill-staffops-review/SKILL.md"
+    },
+    {
+      "skill": "samira-support-review",
+      "owner": "samira-support-director",
+      "status": "draft",
+      "path": "skills/samira-support-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/samira-support-review/SKILL.md"
+    },
+    {
+      "skill": "owen-tech-review",
+      "owner": "owen-technology-director",
+      "status": "draft",
+      "path": "skills/owen-tech-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/owen-tech-review/SKILL.md"
+    },
+    {
+      "skill": "amara-research-synthesis",
+      "owner": "amara-user-research-director",
+      "status": "draft",
+      "path": "skills/amara-research-synthesis/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/amara-research-synthesis/SKILL.md"
+    },
+    {
+      "skill": "victor-vendor-review",
+      "owner": "victor-vendor-management-director",
+      "status": "draft",
+      "path": "skills/victor-vendor-review/SKILL.md",
+      "raw_url": "https://raw.githubusercontent.com/AesopScott/central/main/skills/victor-vendor-review/SKILL.md"
+    }
+  ]
+}
