@@ -2784,24 +2784,24 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
         // Display-only. Icons + descriptions mirror Meridian index.html harness docks.
         // No harness is wired to act from here; wiring is a separate, gated step.
         const HARNESS_ORCHESTRATOR = [
-            { name: 'Prime', sub: 'Core', icon: '<circle cx="32" cy="32" r="16"></circle><path d="M32 10v10M32 44v10M10 32h10M44 32h10"></path>', desc: 'Top-level orchestrator. Holds intent, priority arbitration, and the "why this next" decision across active work.' },
-            { name: 'Bifrost', sub: 'UI', icon: '<path d="M14 42c9-18 27-18 36 0"></path><path d="M18 48h28"></path><path d="M24 36h16"></path>', desc: 'Command-center interface and presentation layer. Renders harness and session state to the operator.' },
-            { name: 'Relay', sub: 'Models', icon: '<path d="M14 32h14"></path><path d="M36 20l14 12-14 12"></path><path d="M28 20l14 12-14 12"></path>', desc: 'Routes work to the right model/provider path: selection, fallback, and route-quality learning.' },
-            { name: 'Beacon', sub: 'Heartbeat', icon: '<circle cx="32" cy="32" r="20"></circle><path d="M14 34h10l4-10 7 20 5-14h10"></path>', desc: 'Liveness and health monitoring. Watches sessions and workers for stalls and heartbeat anomalies.' },
-            { name: 'Security', sub: 'Guardrails', icon: '<path d="M32 11l6 15 16 2-12 10 4 16-14-8-14 8 4-16-12-10 16-2z"></path><circle cx="32" cy="32" r="6"></circle>', desc: 'Guardrail runtime: secret scanning, permission policy, risky-action approval gates, credential boundaries.' },
-            { name: 'Aegis', sub: 'Proofs', icon: '<path d="M32 10l18 8v13c0 12-8 20-18 23-10-3-18-11-18-23V18z"></path><path d="M24 32l6 6 12-14"></path>', desc: 'Proof and crosscheck authority. Scores evidence sufficiency before work is trusted; manages waivers.' },
-            { name: 'Compass', sub: 'Projects', icon: '<circle cx="32" cy="32" r="18"></circle><path d="M32 14l7 25-7-4-7 4z"></path><path d="M32 14v21"></path>', desc: 'Project ontology and scope. Tracks objectives, drift, and cross-project dependencies and handoffs.' },
-            { name: 'Vulcan', sub: 'Sessions', icon: '<path d="M12 27h30l10 8H37l-6 8H17l5-8H12z"></path><path d="M20 43h22"></path><path d="M24 50h14"></path><path d="M27 43l-3 7M37 43l3 7"></path>', desc: 'Session lifecycle: open, close/write-through, suspend/resume, recovery, and safe migration across worktrees.' },
-            { name: 'Atlas', sub: 'Knowledge', icon: '<circle cx="32" cy="32" r="18"></circle><path d="M14 32h36M32 14c7 8 7 28 0 36M32 14c-7-8-7-28 0-36"></path>', desc: 'Knowledge retrieval and context packing. Semantic search, citation ranking, and chunk lineage.' },
-            { name: 'Charon', sub: 'Navigation', icon: '<path d="M32 10l15 39-15-8-15 8z"></path><path d="M32 10v31"></path><path d="M18 53c8-6 20-6 28 0"></path><circle cx="20" cy="52" r="3"></circle><circle cx="44" cy="52" r="3"></circle>', desc: 'FileMap navigation: ownership graph, impact analysis, and capability-to-code-to-proof paths.' },
-            { name: 'Arbiter', sub: 'Reviews', icon: '<path d="M17 16h30v32H17z"></path><path d="M23 25h18M23 33h18M23 41h10"></path><path d="M14 20h6M14 44h6"></path>', desc: 'Review queue: severity calibration, duplicate-finding collapse, assignment, and repair verification.' },
-            { name: 'Workflow', sub: 'Sub-agents', icon: '<circle cx="18" cy="32" r="6"></circle><circle cx="32" cy="18" r="6"></circle><circle cx="46" cy="32" r="6"></circle><path d="M23 28l5-6M37 22l5 6M24 32h16"></path>', desc: 'Sub-agent dispatch and task planning. Lane capacity, worker handoff, and result ingestion.' },
-            { name: 'Federation', sub: 'Network', icon: '<circle cx="32" cy="32" r="5"></circle><circle cx="18" cy="20" r="5"></circle><circle cx="46" cy="20" r="5"></circle><circle cx="32" cy="49" r="5"></circle><path d="M22 23l6 6M42 23l-6 6M32 37v7"></path>', desc: 'Multi-node protocol: trust handshake, remote capability discovery, packet signing, degraded behavior.' },
-            { name: 'Echo', sub: 'Memory', icon: '<rect x="18" y="18" width="28" height="28" rx="6"></rect><rect x="26" y="26" width="12" height="12" rx="2"></rect><path d="M24 10v8M32 10v8M40 10v8M24 46v8M32 46v8M40 46v8M10 24h8M10 32h8M10 40h8M46 24h8M46 32h8M46 40h8"></path>', desc: 'Durable memory: writeable recall, decay/expiry, conflict handling, and memory provenance.' },
-            { name: 'Ratchet', sub: 'Tools', icon: '<path d="M41 13a11 11 0 0 0-13 13L15 39a7 7 0 0 0 10 10l13-13a11 11 0 0 0 13-13l-8 8-8-8z"></path><circle cx="20" cy="44" r="2"></circle>', desc: 'Tool registry and permissioned execution. Dry-run, reversible-action planning, and sandbox policy.' },
-            { name: 'Source', sub: 'Git', icon: '<circle cx="20" cy="20" r="5"></circle><circle cx="44" cy="32" r="5"></circle><circle cx="20" cy="44" r="5"></circle><path d="M25 20h8a11 11 0 0 1 11 11v1M20 25v14M25 44h9a10 10 0 0 0 10-10v-2"></path>', desc: 'Git control: branch leases, merge-conflict planning, diff risk scoring, and main-write safety.' },
-            { name: 'Vision', sub: 'Browser', icon: '<rect x="13" y="16" width="38" height="32" rx="4"></rect><path d="M13 25h38"></path><circle cx="20" cy="21" r="1.5"></circle><circle cx="26" cy="21" r="1.5"></circle><path d="M24 37h16M32 29l8 8-8 8"></path>', desc: 'Browser/page capture: visual diffing, screenshot evidence, DOM/action planning, safe navigation.' },
-            { name: 'Autonomy', sub: 'Release', icon: '<path d="M34 12c8 2 14 8 16 16L36 42 22 28z"></path><path d="M22 28l-8 2 6 6M36 42l-2 8-6-6"></path><circle cx="38" cy="24" r="4"></circle><path d="M20 44c-4 1-7 4-8 8 4-1 7-4 8-8z"></path>', desc: 'Release readiness: deployment plans, changelog/proof packaging, rollback gates, and release risk forecast.' }
+            { name: 'Orchestrator', sub: 'Core', icon: '<circle cx="32" cy="32" r="16"></circle><path d="M32 10v10M32 44v10M10 32h10M44 32h10"></path>', desc: 'Top-level orchestrator. Holds intent, priority arbitration, and the "why this next" decision across active work.' },
+            { name: 'Interface', sub: 'UI', icon: '<path d="M14 42c9-18 27-18 36 0"></path><path d="M18 48h28"></path><path d="M24 36h16"></path>', desc: 'Command-center interface and presentation layer. Renders harness and session state to the operator.' },
+            { name: 'Model Router', sub: 'Models', icon: '<path d="M14 32h14"></path><path d="M36 20l14 12-14 12"></path><path d="M28 20l14 12-14 12"></path>', desc: 'Routes work to the right model/provider path: selection, fallback, and route-quality learning.' },
+            { name: 'Health Monitor', sub: 'Heartbeat', icon: '<circle cx="32" cy="32" r="20"></circle><path d="M14 34h10l4-10 7 20 5-14h10"></path>', desc: 'Liveness and health monitoring. Watches sessions and workers for stalls and heartbeat anomalies.' },
+            { name: 'Guardrails', sub: 'Guardrails', icon: '<path d="M32 11l6 15 16 2-12 10 4 16-14-8-14 8 4-16-12-10 16-2z"></path><circle cx="32" cy="32" r="6"></circle>', desc: 'Guardrail runtime: secret scanning, permission policy, risky-action approval gates, credential boundaries.' },
+            { name: 'Proof Authority', sub: 'Proofs', icon: '<path d="M32 10l18 8v13c0 12-8 20-18 23-10-3-18-11-18-23V18z"></path><path d="M24 32l6 6 12-14"></path>', desc: 'Proof and crosscheck authority. Scores evidence sufficiency before work is trusted; manages waivers.' },
+            { name: 'Project Scope', sub: 'Projects', icon: '<circle cx="32" cy="32" r="18"></circle><path d="M32 14l7 25-7-4-7 4z"></path><path d="M32 14v21"></path>', desc: 'Project ontology and scope. Tracks objectives, drift, and cross-project dependencies and handoffs.' },
+            { name: 'Session Manager', sub: 'Sessions', icon: '<path d="M12 27h30l10 8H37l-6 8H17l5-8H12z"></path><path d="M20 43h22"></path><path d="M24 50h14"></path><path d="M27 43l-3 7M37 43l3 7"></path>', desc: 'Session lifecycle: open, close/write-through, suspend/resume, recovery, and safe migration across worktrees.' },
+            { name: 'Knowledge Retrieval', sub: 'Knowledge', icon: '<circle cx="32" cy="32" r="18"></circle><path d="M14 32h36M32 14c7 8 7 28 0 36M32 14c-7-8-7-28 0-36"></path>', desc: 'Knowledge retrieval and context packing. Semantic search, citation ranking, and chunk lineage.' },
+            { name: 'File Navigation', sub: 'Navigation', icon: '<path d="M32 10l15 39-15-8-15 8z"></path><path d="M32 10v31"></path><path d="M18 53c8-6 20-6 28 0"></path><circle cx="20" cy="52" r="3"></circle><circle cx="44" cy="52" r="3"></circle>', desc: 'FileMap navigation: ownership graph, impact analysis, and capability-to-code-to-proof paths.' },
+            { name: 'Review Queue', sub: 'Reviews', icon: '<path d="M17 16h30v32H17z"></path><path d="M23 25h18M23 33h18M23 41h10"></path><path d="M14 20h6M14 44h6"></path>', desc: 'Review queue: severity calibration, duplicate-finding collapse, assignment, and repair verification.' },
+            { name: 'Sub-agent Dispatch', sub: 'Sub-agents', icon: '<circle cx="18" cy="32" r="6"></circle><circle cx="32" cy="18" r="6"></circle><circle cx="46" cy="32" r="6"></circle><path d="M23 28l5-6M37 22l5 6M24 32h16"></path>', desc: 'Sub-agent dispatch and task planning. Lane capacity, worker handoff, and result ingestion.' },
+            { name: 'Network Protocol', sub: 'Network', icon: '<circle cx="32" cy="32" r="5"></circle><circle cx="18" cy="20" r="5"></circle><circle cx="46" cy="20" r="5"></circle><circle cx="32" cy="49" r="5"></circle><path d="M22 23l6 6M42 23l-6 6M32 37v7"></path>', desc: 'Multi-node protocol: trust handshake, remote capability discovery, packet signing, degraded behavior.' },
+            { name: 'Memory', sub: 'Memory', icon: '<rect x="18" y="18" width="28" height="28" rx="6"></rect><rect x="26" y="26" width="12" height="12" rx="2"></rect><path d="M24 10v8M32 10v8M40 10v8M24 46v8M32 46v8M40 46v8M10 24h8M10 32h8M10 40h8M46 24h8M46 32h8M46 40h8"></path>', desc: 'Durable memory: writeable recall, decay/expiry, conflict handling, and memory provenance.' },
+            { name: 'Tool Registry', sub: 'Tools', icon: '<path d="M41 13a11 11 0 0 0-13 13L15 39a7 7 0 0 0 10 10l13-13a11 11 0 0 0 13-13l-8 8-8-8z"></path><circle cx="20" cy="44" r="2"></circle>', desc: 'Tool registry and permissioned execution. Dry-run, reversible-action planning, and sandbox policy.' },
+            { name: 'Git Control', sub: 'Git', icon: '<circle cx="20" cy="20" r="5"></circle><circle cx="44" cy="32" r="5"></circle><circle cx="20" cy="44" r="5"></circle><path d="M25 20h8a11 11 0 0 1 11 11v1M20 25v14M25 44h9a10 10 0 0 0 10-10v-2"></path>', desc: 'Git control: branch leases, merge-conflict planning, diff risk scoring, and main-write safety.' },
+            { name: 'Browser Capture', sub: 'Browser', icon: '<rect x="13" y="16" width="38" height="32" rx="4"></rect><path d="M13 25h38"></path><circle cx="20" cy="21" r="1.5"></circle><circle cx="26" cy="21" r="1.5"></circle><path d="M24 37h16M32 29l8 8-8 8"></path>', desc: 'Browser/page capture: visual diffing, screenshot evidence, DOM/action planning, safe navigation.' },
+            { name: 'Release Readiness', sub: 'Release', icon: '<path d="M34 12c8 2 14 8 16 16L36 42 22 28z"></path><path d="M22 28l-8 2 6 6M36 42l-2 8-6-6"></path><circle cx="38" cy="24" r="4"></circle><path d="M20 44c-4 1-7 4-8 8 4-1 7-4 8-8z"></path>', desc: 'Release readiness: deployment plans, changelog/proof packaging, rollback gates, and release risk forecast.' }
         ];
         const HARNESS_MODEL = [
             { name: 'Provider', sub: 'Adapter', icon: '<path d="M32 12l16 9v18L32 48l-16-9V21z"></path><path d="M32 12v18l16 9M32 30L16 21M32 30v18"></path>', desc: 'Connects to a model or vendor through a controlled boundary.' },
@@ -2832,75 +2832,75 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
         // Levers are written so skills / plugins / scripts / config can later map onto them.
         const HARNESS_DETAIL = {
             // Orchestrator harnesses
-            Prime: { fn: 'Owns the "why this next" decision across all active work — holds intent, arbitrates priority, and decides which session or task earns the next slice of attention.',
+            'Orchestrator': { fn: 'Owns the "why this next" decision across all active work — holds intent, arbitrates priority, and decides which session or task earns the next slice of attention.',
                 perf: ['Priority weighting model (recency vs. blast-radius vs. deadline)', 'Parallel-lane cap and preemption rules for stalled work', 'Attention slice size per tick'],
                 cost: ['Attention budget per project', 'Ceiling on concurrent high-cost reasoning sessions', 'Idle-session reclaim timer'],
-                cap: ['Pluggable arbitration strategy (skill)', 'Objective-source inputs (Compass / Goal feeds)', 'Operator override hooks'] },
-            Bifrost: { fn: 'Renders harness, session, and work state to the operator — the command-center surface you are looking at now.',
+                cap: ['Pluggable arbitration strategy (skill)', 'Objective-source inputs (Project Scope / Goal feeds)', 'Operator override hooks'] },
+            'Interface': { fn: 'Renders harness, session, and work state to the operator — the command-center surface you are looking at now.',
                 perf: ['Render cadence / refresh throttle', 'Virtualized lists for large session counts', 'Lazy panel hydration'],
                 cost: ['Poll-vs-push state sync', 'Snapshot interval', 'Suppress redundant repaint'],
                 cap: ['Custom panels / widgets (plugin)', 'Layout presets', 'Drawer extensions like this one'] },
-            Relay: { fn: 'Routes each unit of work to the right model / provider path — selection, fallback, and route-quality learning.',
+            'Model Router': { fn: 'Routes each unit of work to the right model / provider path — selection, fallback, and route-quality learning.',
                 perf: ['Route scoring weights (latency vs. quality)', 'Warm-pool / keepalive', 'Speculative routing'],
                 cost: ['Tier-down policy for cheap tasks', 'Per-route token ceilings', 'Cache-hit reuse before dispatch'],
                 cap: ['Provider adapter set (plugin)', 'Fallback chain depth', 'Route-learning feedback source'] },
-            Beacon: { fn: 'Watches sessions and workers for stalls and heartbeat anomalies — liveness and health monitoring.',
+            'Health Monitor': { fn: 'Watches sessions and workers for stalls and heartbeat anomalies — liveness and health monitoring.',
                 perf: ['Heartbeat interval', 'Stall-detection threshold', 'Anomaly-window sizing'],
                 cost: ['Probe frequency vs. idle backoff', 'Sampling instead of per-tick polling'],
                 cap: ['Custom health checks (script)', 'Alert routing hooks', 'Auto-recovery trigger wiring'] },
-            Security: { fn: 'Guardrail runtime — secret scanning, permission policy, risky-action approval gates, credential boundaries.',
+            'Guardrails': { fn: 'Guardrail runtime — secret scanning, permission policy, risky-action approval gates, credential boundaries.',
                 perf: ['Scan scope (diff-only vs. full)', 'Rule-set precompile', 'Gate-eval caching'],
                 cost: ['Scan trigger points (pre-commit vs. continuous)', 'Rule batching'],
                 cap: ['Custom rule packs / secret patterns (plugin)', 'Approval-gate definitions', 'Credential-boundary policy'] },
-            Aegis: { fn: 'Proof and crosscheck authority — scores evidence sufficiency before work is trusted; manages waivers.',
+            'Proof Authority': { fn: 'Proof and crosscheck authority — scores evidence sufficiency before work is trusted; manages waivers.',
                 perf: ['Evidence-scoring depth', 'Parallel crosscheck lanes', 'Proof cache'],
                 cost: ['Required-proof tiering by risk', 'Waiver shortcuts for low-risk paths'],
                 cap: ['Proof-type registry (plugin)', 'Sufficiency thresholds', 'Waiver policy authoring'] },
-            Compass: { fn: 'Project ontology and scope — tracks objectives, drift, and cross-project dependencies and handoffs.',
+            'Project Scope': { fn: 'Project ontology and scope — tracks objectives, drift, and cross-project dependencies and handoffs.',
                 perf: ['Drift-recompute interval', 'Dependency-graph caching'],
                 cost: ['Scope-scan frequency', 'Incremental vs. full ontology rebuild'],
                 cap: ['Objective schema (config)', 'Dependency-source connectors', 'Handoff templates'] },
-            Vulcan: { fn: 'Session lifecycle — open, close / write-through, suspend / resume, recovery, and safe migration across worktrees.',
+            'Session Manager': { fn: 'Session lifecycle — open, close / write-through, suspend / resume, recovery, and safe migration across worktrees.',
                 perf: ['Write-through batching', 'Resume-state prefetch', 'Migration parallelism'],
                 cost: ['Snapshot retention', 'Idle-suspend timer', 'State-compaction policy'],
                 cap: ['Recovery strategy (script)', 'Worktree-isolation rules', 'Lifecycle hooks'] },
-            Atlas: { fn: 'Knowledge retrieval and context packing — semantic search, citation ranking, chunk lineage.',
+            'Knowledge Retrieval': { fn: 'Knowledge retrieval and context packing — semantic search, citation ranking, chunk lineage.',
                 perf: ['Index type / embedding model', 'Top-k and rerank depth', 'Chunk-size tuning'],
                 cost: ['Retrieval breadth vs. context budget', 'Cache embeddings', 'Cheap-recall-first'],
                 cap: ['Source connectors (plugin)', 'Ranking strategy', 'Lineage / provenance depth'] },
-            Charon: { fn: 'FileMap navigation — ownership graph, impact analysis, and capability-to-code-to-proof paths.',
+            'File Navigation': { fn: 'FileMap navigation — ownership graph, impact analysis, and capability-to-code-to-proof paths.',
                 perf: ['Graph-build incrementality', 'Impact-walk depth cap', 'Path cache'],
                 cost: ['Re-index trigger', 'Partial-graph updates'],
                 cap: ['Ownership-rule source', 'Capability-mapping schema', 'Custom path queries (script)'] },
-            Arbiter: { fn: 'Review queue — severity calibration, duplicate-finding collapse, assignment, and repair verification.',
+            'Review Queue': { fn: 'Review queue — severity calibration, duplicate-finding collapse, assignment, and repair verification.',
                 perf: ['Dedup algorithm', 'Parallel reviewer lanes', 'Finding-cluster batching'],
                 cost: ['Review depth by severity', 'Reviewer-model tier', 'Skip-on-trivial'],
                 cap: ['Severity rubric (config)', 'Reviewer-agent set (plugin)', 'Repair-verify gate'] },
-            Workflow: { fn: 'Sub-agent dispatch and task planning — lane capacity, worker handoff, and result ingestion.',
+            'Sub-agent Dispatch': { fn: 'Sub-agent dispatch and task planning — lane capacity, worker handoff, and result ingestion.',
                 perf: ['Lane concurrency cap', 'Fan-out width', 'Pipeline vs. barrier stages'],
                 cost: ['Worker-model tier per stage', 'Agent-count ceiling', 'Early-exit on empty'],
                 cap: ['Custom agent types (plugin)', 'Planning strategy (skill)', 'Result-schema enforcement'] },
-            Federation: { fn: 'Multi-node protocol — trust handshake, remote capability discovery, packet signing, degraded behavior.',
+            'Network Protocol': { fn: 'Multi-node protocol — trust handshake, remote capability discovery, packet signing, degraded behavior.',
                 perf: ['Handshake cache', 'Discovery interval', 'Signature-verify batching'],
                 cost: ['Remote-call budgeting', 'Local-first preference', 'Degraded-mode fallbacks'],
                 cap: ['Node-trust policy', 'Capability-advertisement schema', 'Transport adapters (plugin)'] },
-            Echo: { fn: 'Durable memory — writeable recall, decay / expiry, conflict handling, and memory provenance.',
+            'Memory': { fn: 'Durable memory — writeable recall, decay / expiry, conflict handling, and memory provenance.',
                 perf: ['Recall index', 'Decay-sweep interval', 'Write-batch'],
                 cost: ['Retention / expiry policy', 'Memory-size caps', 'Dedup on write'],
                 cap: ['Memory schema (config)', 'Conflict-resolution strategy', 'Provenance depth'] },
-            Ratchet: { fn: 'Tool registry and permissioned execution — dry-run, reversible-action planning, and sandbox policy.',
+            'Tool Registry': { fn: 'Tool registry and permissioned execution — dry-run, reversible-action planning, and sandbox policy.',
                 perf: ['Tool-result cache', 'Parallel safe-tool exec', 'Warm sandboxes'],
                 cost: ['Tool-call ceilings', 'Dry-run-before-spend', 'Sandbox reuse'],
                 cap: ['Tool registry (plugin)', 'Permission policy', 'Reversibility / rollback definitions'] },
-            Source: { fn: 'Git control — branch leases, merge-conflict planning, diff risk scoring, and main-write safety.',
+            'Git Control': { fn: 'Git control — branch leases, merge-conflict planning, diff risk scoring, and main-write safety.',
                 perf: ['Diff-risk model', 'Conflict-predict precompute', 'Shallow-fetch tuning'],
                 cost: ['Lease-scope minimization', 'CI-trigger gating', 'Rebase-vs-merge policy'],
                 cap: ['Branch-lease rules (config)', 'Risk-scoring weights', 'Main-write gate (script)'] },
-            Vision: { fn: 'Browser / page capture — visual diffing, screenshot evidence, DOM / action planning, safe navigation.',
+            'Browser Capture': { fn: 'Browser / page capture — visual diffing, screenshot evidence, DOM / action planning, safe navigation.',
                 perf: ['Capture resolution', 'Visual-diff sensitivity', 'Headless-pool warmup'],
                 cost: ['Screenshot frequency', 'Capture-on-change only', 'Session reuse'],
                 cap: ['Navigation-allow policy', 'Action-planner strategy', 'Evidence-store connectors'] },
-            Autonomy: { fn: 'Release readiness — deployment plans, changelog / proof packaging, rollback gates, and release risk forecast.',
+            'Release Readiness': { fn: 'Release readiness — deployment plans, changelog / proof packaging, rollback gates, and release risk forecast.',
                 perf: ['Risk-forecast model', 'Parallel proof-package build'],
                 cost: ['Gate-check scope by release size', 'Reuse prior proof bundles'],
                 cap: ['Rollback-gate policy (config)', 'Changelog templates', 'Release-risk inputs'] },
@@ -2989,6 +2989,170 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                 perf: ['Trust-state cache'],
                 cost: ['Skip re-review while trust valid'],
                 cap: ['Trust-state machine (config)', 'Expiry policy'] }
+        };
+
+        // --- Proposed skills: one per lever axis (performance / cost / capability) per harness. ---
+        // Reference only — these are candidate skills that COULD be built to move each harness on
+        // that axis. Keyed by harness name. { perf|cost|cap: { name, desc } }. Nothing is wired.
+        const HARNESS_SKILLS = {
+            // Orchestrator harnesses
+            'Orchestrator': {
+                perf: { cmd: '/priority-tuner', name: 'Priority Tuner', desc: 'Learns priority weights (recency, blast-radius, deadline) from past arbitration outcomes and retunes the weighting model so the next-best work is chosen with fewer wasted attention slices.' },
+                cost: { cmd: '/attention-governor', name: 'Attention Governor', desc: 'Caps concurrent high-cost reasoning sessions per project and reclaims idle slices, holding total attention spend under a set ceiling.' },
+                cap: { cmd: '/arbitration-strategy', name: 'Arbitration Strategy', desc: 'Lets operators swap the "why this next" decision logic (round-robin, risk-first, deadline-first) without touching the orchestrator core.' } },
+            'Interface': {
+                perf: { cmd: '/session-renderer', name: 'Session Renderer', desc: 'Virtualizes large session lists and throttles refresh cadence so the command center stays responsive at high session counts.' },
+                cost: { cmd: '/sync-optimizer', name: 'Sync Optimizer', desc: 'Replaces redundant polling with change-driven push updates and tuned snapshot intervals to cut wasted repaint and state-sync work.' },
+                cap: { cmd: '/panel-kit', name: 'Panel Kit', desc: 'Provides a plugin surface for operator-authored panels, widgets, and layout presets like this harness drawer.' } },
+            'Model Router': {
+                perf: { cmd: '/route-tuner', name: 'Route Tuner', desc: 'Continuously retunes latency-vs-quality route weights and keeps warm pools ready so dispatch picks the fastest adequate path.' },
+                cost: { cmd: '/tier-down', name: 'Tier Down', desc: 'Routes cheap tasks to lower tiers, enforces per-route token ceilings, and reuses cache hits before any paid dispatch.' },
+                cap: { cmd: '/provider-adapters', name: 'Provider Adapters', desc: 'Adds new vendor/model adapters and configurable fallback-chain depth without changing the routing core.' } },
+            'Health Monitor': {
+                perf: { cmd: '/stall-tuner', name: 'Stall Tuner', desc: 'Calibrates heartbeat interval, stall threshold, and anomaly window so genuine stalls surface fast without false alarms.' },
+                cost: { cmd: '/probe-backoff', name: 'Probe Backoff', desc: 'Backs off probe frequency on idle sessions and samples instead of per-tick polling to cut monitoring overhead.' },
+                cap: { cmd: '/recovery-hooks', name: 'Recovery Hooks', desc: 'Wires custom health checks and recovery triggers so a detected stall can route to a defined repair action.' } },
+            'Guardrails': {
+                perf: { cmd: '/diff-scanner', name: 'Diff Scanner', desc: 'Limits secret and permission scans to changed surfaces and precompiles rule sets so gate evaluation stays fast.' },
+                cost: { cmd: '/trigger-optimizer', name: 'Trigger Optimizer', desc: 'Moves scans to high-value trigger points (pre-commit over continuous) and batches rules to reduce guardrail compute.' },
+                cap: { cmd: '/guardrail-packs', name: 'Guardrail Packs', desc: 'Lets teams author secret patterns, approval-gate definitions, and credential-boundary policy as installable packs.' } },
+            'Proof Authority': {
+                perf: { cmd: '/crosscheck-lanes', name: 'Crosscheck Lanes', desc: 'Runs evidence crosschecks across lanes and caches prior proofs so sufficiency scoring returns faster.' },
+                cost: { cmd: '/proof-policy', name: 'Proof Policy', desc: 'Scales required proof to risk tier and allows waiver shortcuts on low-risk paths to avoid over-proving cheap work.' },
+                cap: { cmd: '/proof-registry', name: 'Proof Registry', desc: 'Registers new evidence types and sufficiency thresholds so the authority can score domains it could not before.' } },
+            'Project Scope': {
+                perf: { cmd: '/drift-recompute', name: 'Drift Recompute', desc: 'Recomputes only changed scope regions and caches the dependency graph so drift checks stay cheap and current.' },
+                cost: { cmd: '/scan-scheduler', name: 'Scan Scheduler', desc: 'Tunes scope-scan frequency and prefers incremental over full ontology rebuilds to limit recompute cost.' },
+                cap: { cmd: '/scope-connectors', name: 'Scope Connectors', desc: 'Adds connectors and handoff templates so scope tracking spans new project and cross-project sources.' } },
+            'Session Manager': {
+                perf: { cmd: '/state-prefetch', name: 'State Prefetch', desc: 'Batches write-through and prefetches resume state so session open, resume, and worktree migration run with less stall.' },
+                cost: { cmd: '/idle-suspend', name: 'Idle Suspend', desc: 'Suspends idle sessions on a timer and compacts state with retention limits to shrink storage and live cost.' },
+                cap: { cmd: '/lifecycle-hooks', name: 'Lifecycle Hooks', desc: 'Exposes recovery-strategy scripts, worktree-isolation rules, and open/close lifecycle hooks for custom session behavior.' } },
+            'Knowledge Retrieval': {
+                perf: { cmd: '/rerank-tuner', name: 'Rerank Tuner', desc: 'Tunes embedding model, top-k, rerank depth, and chunk size so retrieval returns the right context with less latency.' },
+                cost: { cmd: '/cheap-recall', name: 'Cheap Recall', desc: 'Tries cached embeddings and cheap recall before broad search, bounding retrieval breadth to the context budget.' },
+                cap: { cmd: '/knowledge-connectors', name: 'Knowledge Connectors', desc: 'Adds source connectors, ranking strategies, and provenance depth so retrieval reaches new corpora with traceable lineage.' } },
+            'File Navigation': {
+                perf: { cmd: '/graph-builder', name: 'Graph Builder', desc: 'Builds the ownership graph incrementally, caps impact-walk depth, and caches paths so navigation stays fast on large trees.' },
+                cost: { cmd: '/partial-reindex', name: 'Partial Reindex', desc: 'Re-indexes only changed regions and applies partial graph updates to avoid full-rebuild cost.' },
+                cap: { cmd: '/path-queries', name: 'Path Queries', desc: 'Adds ownership-rule sources, a capability-mapping schema, and custom capability-to-code-to-proof queries.' } },
+            'Review Queue': {
+                perf: { cmd: '/finding-dedup', name: 'Finding Dedup', desc: 'Collapses duplicate findings and batches clusters across parallel reviewer lanes so the queue clears faster.' },
+                cost: { cmd: '/scaled-review', name: 'Scaled Review', desc: 'Sets review depth and reviewer-model tier by severity and skips trivial findings to control review spend.' },
+                cap: { cmd: '/reviewer-pack', name: 'Reviewer Pack', desc: 'Adds reviewer-agent sets, a configurable severity rubric, and a repair-verification gate.' } },
+            'Sub-agent Dispatch': {
+                perf: { cmd: '/stage-scheduler', name: 'Stage Scheduler', desc: 'Tunes lane concurrency and fan-out and prefers pipeline over barrier stages so sub-agent work overlaps instead of waiting.' },
+                cost: { cmd: '/worker-ceiling', name: 'Worker Ceiling', desc: 'Sets per-stage worker-model tier, caps total agent count, and early-exits empty stages to bound dispatch cost.' },
+                cap: { cmd: '/agent-types', name: 'Agent Types', desc: 'Registers new agent types, pluggable planning strategies, and enforced result schemas.' } },
+            'Network Protocol': {
+                perf: { cmd: '/handshake-cache', name: 'Handshake Cache', desc: 'Caches trust handshakes and batches signature verification so multi-node calls add less per-packet latency.' },
+                cost: { cmd: '/call-budget', name: 'Call Budget', desc: 'Prefers local execution, budgets remote calls, and uses degraded-mode fallbacks to limit cross-node cost.' },
+                cap: { cmd: '/transport-adapters', name: 'Transport Adapters', desc: 'Adds transport adapters, node-trust policy, and a capability-advertisement schema for new node types.' } },
+            'Memory': {
+                perf: { cmd: '/index-tuner', name: 'Index Tuner', desc: 'Tunes the recall index, decay-sweep interval, and write batching so memory reads and writes stay fast as it grows.' },
+                cost: { cmd: '/retention-policy', name: 'Retention Policy', desc: 'Applies expiry, size caps, and dedup-on-write to keep durable memory bounded.' },
+                cap: { cmd: '/conflict-resolution', name: 'Conflict Resolution', desc: 'Adds a memory schema, conflict-resolution logic, and provenance depth so recall stays trustworthy under contradiction.' } },
+            'Tool Registry': {
+                perf: { cmd: '/parallel-executor', name: 'Parallel Executor', desc: 'Caches tool results, runs safe tools in parallel, and keeps sandboxes warm to cut execution latency.' },
+                cost: { cmd: '/dry-run', name: 'Dry Run', desc: 'Enforces tool-call ceilings, dry-runs costly actions first, and reuses sandboxes to avoid wasted spend.' },
+                cap: { cmd: '/reversibility-policy', name: 'Reversibility Policy', desc: 'Registers new tools, permission policy, and rollback/reversibility definitions for gated execution.' } },
+            'Git Control': {
+                perf: { cmd: '/conflict-predict', name: 'Conflict Predict', desc: 'Precomputes likely merge conflicts and tunes shallow-fetch and diff-risk scoring so Git operations plan faster.' },
+                cost: { cmd: '/ci-gate', name: 'CI Gate', desc: 'Minimizes branch-lease scope and gates CI triggers (rebase-vs-merge policy) to avoid redundant pipeline cost.' },
+                cap: { cmd: '/main-gate', name: 'Main Gate', desc: 'Adds branch-lease rules, risk-scoring weights, and a scripted main-write gate.' } },
+            'Browser Capture': {
+                perf: { cmd: '/pool-warmup', name: 'Pool Warmup', desc: 'Warms a headless browser pool and tunes capture resolution and diff sensitivity so page capture returns quickly.' },
+                cost: { cmd: '/change-capture', name: 'Change Capture', desc: 'Captures only on detected change and reuses browser sessions to reduce screenshot and compute cost.' },
+                cap: { cmd: '/navigation-policy', name: 'Navigation Policy', desc: 'Adds navigation-allow policy, an action-planner strategy, and evidence-store connectors.' } },
+            'Release Readiness': {
+                perf: { cmd: '/proof-packager', name: 'Proof Packager', desc: 'Builds proof packages in parallel and tunes the risk-forecast model so release readiness is assessed faster.' },
+                cost: { cmd: '/scaled-gates', name: 'Scaled Gates', desc: 'Scales gate-check scope to release size and reuses prior proof bundles to cut release-prep cost.' },
+                cap: { cmd: '/rollback-gate', name: 'Rollback Gate', desc: 'Adds rollback-gate policy, changelog templates, and configurable release-risk inputs.' } },
+            // Model-harness layer
+            Provider: {
+                perf: { cmd: '/pool-manager', name: 'Pool Manager', desc: 'Pools connections, keeps them alive, and selects the nearest region to cut per-call connection overhead.' },
+                cost: { cmd: '/batch-endpoints', name: 'Batch Endpoints', desc: 'Chooses batch over realtime endpoints and compresses payloads where latency allows to reduce vendor cost.' },
+                cap: { cmd: '/vendor-adapters', name: 'Vendor Adapters', desc: 'Adds per-vendor adapters and auth-mode config so new providers connect through the controlled boundary.' } },
+            Identity: {
+                perf: { cmd: '/fast-pinner', name: 'Fast Pinner', desc: 'Pins requests to the fastest adequate model variant to trim response time.' },
+                cost: { cmd: '/cheap-pinner', name: 'Cheap Pinner', desc: 'Pins to the cheapest sufficient model version when capability allows, lowering per-call cost.' },
+                cap: { cmd: '/version-allowlist', name: 'Version Allowlist', desc: 'Maintains a version allowlist and identity-record schema so only approved model versions run.' } },
+            Select: {
+                perf: { cmd: '/speed-matcher', name: 'Speed Matcher', desc: 'Weights capability matching toward faster candidates when task quality permits.' },
+                cost: { cmd: '/tier-selector', name: 'Tier Selector', desc: 'Defaults selection to the lowest tier that meets the task to avoid overpaying for capability.' },
+                cap: { cmd: '/selection-rubric', name: 'Selection Rubric', desc: 'Adds an authored selection rubric and capability catalog so new task types map to the right model.' } },
+            Route: {
+                perf: { cmd: '/warm-dispatcher', name: 'Warm Dispatcher', desc: 'Raises dispatch concurrency and keeps routes warm so approved work reaches the model faster.' },
+                cost: { cmd: '/token-cap', name: 'Token Cap', desc: 'Enforces token ceilings per route so a single dispatch cannot overspend.' },
+                cap: { cmd: '/route-table', name: 'Route Table', desc: 'Adds a configurable route table and dispatch hooks for new model paths.' } },
+            Fallback: {
+                perf: { cmd: '/fail-standby', name: 'Fail Standby', desc: 'Sets tight fail timeouts and keeps a pre-warmed standby so blocked routes recover quickly.' },
+                cost: { cmd: '/retry-cap', name: 'Retry Cap', desc: "Caps fallback tier so retries don't silently escalate to pricier models unless required." },
+                cap: { cmd: '/chain-builder', name: 'Chain Builder', desc: 'Defines the fallback chain and retry policy for new failure modes.' } },
+            Verify: {
+                perf: { cmd: '/sampling-policy', name: 'Sampling Policy', desc: 'Verifies a sampled subset rather than every call where risk allows, cutting verification latency.' },
+                cost: { cmd: '/tiered-verifier', name: 'Tiered Verifier', desc: "Scales verification effort to risk tier so low-risk calls aren't over-verified." },
+                cap: { cmd: '/verification-checks', name: 'Verification Checks', desc: 'Adds scripted checks and an evidence schema so new output types can be confirmed.' } },
+            Cost: {
+                perf: { cmd: '/budget-check', name: 'Budget Check', desc: 'Checks budget before dispatch so over-budget work is stopped before it spends.' },
+                cost: { cmd: '/threshold-governor', name: 'Threshold Governor', desc: 'Sets per-project and per-task budgets with alert and halt thresholds and fine-grained token accounting.' },
+                cap: { cmd: '/cost-model', name: 'Cost Model', desc: 'Adds per-provider cost models and budget-policy authoring.' } },
+            Latency: {
+                perf: { cmd: '/route-demoter', name: 'Route Demoter', desc: 'Sets latency SLOs and demotes routes that breach them so fast paths win.' },
+                cost: { cmd: '/batch-mode', name: 'Batch Mode', desc: 'Trades latency for cheaper batch processing where the task tolerates delay.' },
+                cap: { cmd: '/availability-probes', name: 'Availability Probes', desc: 'Adds SLO config and availability probes for new routes.' } },
+            Context: {
+                perf: { cmd: '/context-compactor', name: 'Context Compactor', desc: 'Compacts context and selects the right window size so prompts fit with less processing.' },
+                cost: { cmd: '/summarize-fit', name: 'Summarize Fit', desc: 'Trims and summarizes context and reuses chunks to lower token spend.' },
+                cap: { cmd: '/window-map', name: 'Window Map', desc: 'Adds packing strategies and a per-model window map so context fit adapts to each model.' } },
+            Prompt: {
+                perf: { cmd: '/template-precompiler', name: 'Template Precompiler', desc: 'Precompiles templates and reuses cache prefixes so prompt assembly is fast.' },
+                cost: { cmd: '/cache-optimizer', name: 'Cache Optimizer', desc: 'Maximizes prompt-cache hits and strips redundant context to cut input tokens.' },
+                cap: { cmd: '/template-library', name: 'Template Library', desc: 'Adds a template library and injection-order rules for new prompt shapes.' } },
+            Policy: {
+                perf: { cmd: '/rule-precompiler', name: 'Rule Precompiler', desc: 'Precompiles and caches constraint rules so policy evaluation adds little overhead.' },
+                cost: { cmd: '/tier-constraint', name: 'Tier Constraint', desc: 'Adds a constraint that forces the cheapest allowed tier when policy permits.' },
+                cap: { cmd: '/constraint-packs', name: 'Constraint Packs', desc: 'Lets teams author policy and install constraint packs for new route/task rules.' } },
+            Safety: {
+                perf: { cmd: '/guard-cache', name: 'Guard Cache', desc: 'Caches guard evaluations so repeated safe patterns clear quickly.' },
+                cost: { cmd: '/scoped-guards', name: 'Scoped Guards', desc: 'Scopes guard checks by risk so low-risk calls run fewer checks.' },
+                cap: { cmd: '/safety-packs', name: 'Safety Packs', desc: 'Adds installable safety rule packs and block/allow policy.' } },
+            Privacy: {
+                perf: { cmd: '/redaction-precompiler', name: 'Redaction Precompiler', desc: 'Precompiles redaction matchers so leakage scanning stays fast.' },
+                cost: { cmd: '/scope-tuner', name: 'Scope Tuner', desc: 'Tunes scan scope to the data actually present, avoiding full-payload scanning cost.' },
+                cap: { cmd: '/redaction-packs', name: 'Redaction Packs', desc: 'Adds redaction patterns and data-class policy for new sensitive-data types.' } },
+            Tools: {
+                perf: { cmd: '/call-parallelizer', name: 'Call Parallelizer', desc: 'Caches results and runs safe tool calls in parallel to reduce wait.' },
+                cost: { cmd: '/call-ceiling', name: 'Call Ceiling', desc: "Caps tool calls per request so a run can't overspend on tool use." },
+                cap: { cmd: '/tool-policy', name: 'Tool Policy', desc: 'Configures the allowed-tool set and tool-call policy per route.' } },
+            Compare: {
+                perf: { cmd: '/early-consensus', name: 'Early Consensus', desc: 'Runs comparison lanes in parallel and exits on early consensus to save time.' },
+                cost: { cmd: '/juror-panel', name: 'Juror Panel', desc: 'Caps lane count and uses cheaper juror models to bound comparison cost.' },
+                cap: { cmd: '/voting-strategy', name: 'Voting Strategy', desc: 'Adds comparison/voting strategies and configurable juror sets.' } },
+            Trace: {
+                perf: { cmd: '/async-writer', name: 'Async Writer', desc: "Writes traces asynchronously so audit logging doesn't block the call path." },
+                cost: { cmd: '/trace-sampling', name: 'Trace Sampling', desc: 'Samples and ages out traces under a retention budget to limit storage cost.' },
+                cap: { cmd: '/trace-connectors', name: 'Trace Connectors', desc: 'Adds a trace schema and export connectors for external audit sinks.' } },
+            Goal: {
+                perf: { cmd: '/goal-cache', name: 'Goal Cache', desc: 'Caches the goal binding so each call reattaches to the objective without recompute.' },
+                cost: { cmd: '/context-pruner', name: 'Context Pruner', desc: 'Drops context not tied to the active objective to save tokens.' },
+                cap: { cmd: '/objective-binding', name: 'Objective Binding', desc: 'Adds objective-binding sources and a goal schema so new objective types bind cleanly.' } },
+            Payload: {
+                perf: { cmd: '/hash-selector', name: 'Hash Selector', desc: 'Picks a fast hash algorithm so fingerprinting adds minimal overhead.' },
+                cost: { cmd: '/metadata-audit', name: 'Metadata Audit', desc: 'Stores hash-only metadata instead of full payloads for cheap auditability.' },
+                cap: { cmd: '/sign-scheme', name: 'Sign Scheme', desc: 'Adds configurable hash/sign schemes for verifiable prompt fingerprints.' } },
+            Response: {
+                perf: { cmd: '/stream-capture', name: 'Stream Capture', desc: 'Captures responses as a stream rather than blocking so downstream work starts sooner.' },
+                cost: { cmd: '/delta-store', name: 'Delta Store', desc: 'Stores deltas and compresses artifacts to shrink response storage cost.' },
+                cap: { cmd: '/process-hooks', name: 'Process Hooks', desc: 'Adds an artifact schema and post-process hooks for response handling.' } },
+            Evidence: {
+                perf: { cmd: '/evidence-collector', name: 'Evidence Collector', desc: 'Gathers evidence across sources in parallel to shorten linking time.' },
+                cost: { cmd: '/evidence-depth', name: 'Evidence Depth', desc: "Scales evidence depth to risk tier so low-risk output isn't over-evidenced." },
+                cap: { cmd: '/evidence-connectors', name: 'Evidence Connectors', desc: 'Adds connectors and a link schema so output ties to new validation sources.' } },
+            Trust: {
+                perf: { cmd: '/trust-cache', name: 'Trust Cache', desc: 'Caches trust state so valid routes skip redundant lookups.' },
+                cost: { cmd: '/skip-reviewer', name: 'Skip Reviewer', desc: 'Skips re-review while trust remains valid to avoid repeat review cost.' },
+                cap: { cmd: '/trust-machine', name: 'Trust Machine', desc: 'Adds a configurable trust-state machine and expiry policy for route trust.' } }
         };
 
         function harnessCardHtml(h) {
@@ -3091,10 +3255,40 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                 </div>`;
         }
 
+        function harnessSkillCardHtml(axis, accent, skill) {
+            if (!skill || !skill.name) return '';
+            return `
+                <div class="rounded-lg border border-white/10 bg-black/30 p-3">
+                    <div class="mb-1 flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full" style="background:${accent}"></span>
+                        <span class="font-label-sm text-[10px] uppercase tracking-[0.2em]" style="color:${accent}">${escapeHtml(axis)}</span>
+                    </div>
+                    <div class="text-sm font-semibold text-on-surface">${escapeHtml(skill.name)}</div>
+                    ${skill.cmd ? `<code class="mt-0.5 inline-block rounded bg-black/40 px-1.5 py-0.5 font-mono text-[11px] text-on-surface-variant">${escapeHtml(skill.cmd)}</code>` : ''}
+                    <p class="mt-0.5 text-xs leading-relaxed text-on-surface-variant">${escapeHtml(skill.desc)}</p>
+                </div>`;
+        }
+
+        function harnessSkillsHtml(skills) {
+            if (!skills) return '';
+            const cards = [
+                harnessSkillCardHtml('Performance', '#57efff', skills.perf),
+                harnessSkillCardHtml('Cost efficiency', '#facc15', skills.cost),
+                harnessSkillCardHtml('Capability', '#48ff91', skills.cap),
+            ].join('');
+            if (!cards) return '';
+            return `
+                <div>
+                    <div class="mb-2 font-label-sm text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/60">Proposed skills</div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">${cards}</div>
+                </div>`;
+        }
+
         function renderHarnessDetail(name) {
             const card = document.getElementById('harness-detail-card');
             const meta = HARNESS_BY_NAME[name];
             const detail = HARNESS_DETAIL[name];
+            const skills = HARNESS_SKILLS[name];
             if (!card || !meta) return;
             const isOrchestrator = HARNESS_ORCHESTRATOR.some((h) => h.name === name);
             const iconColor = isOrchestrator ? '#57efff' : '#48ff91';
@@ -3128,8 +3322,9 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                             ${harnessLeverListHtml('Capability', '#48ff91', detail?.cap)}
                         </div>
                     </div>
+                    ${harnessSkillsHtml(skills)}
                     <p class="rounded-md border border-white/10 bg-black/30 px-3 py-2 text-[11px] leading-relaxed text-on-surface-variant/70">
-                        Reference only. These levers describe where skills, plugins, scripts, and config will later attach — nothing here is wired to act yet. Each change is a gated, reviewed step.
+                        Reference only. These levers and proposed skills describe where skills, plugins, scripts, and config will later attach — nothing here is wired to act yet. Each change is a gated, reviewed step.
                     </p>
                 </div>`;
             const closeBtn = document.getElementById('harness-detail-close');
@@ -3806,6 +4001,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
         function addSessionCompletionNotification(roleSession) {
             if (!roleSession) return;
             if (isActiveRoleSession(roleSession)) return;
+            // One notification per role. If one already waits, drop the incoming.
+            if (sessionNotifications.some((n) => n.roleSlug === roleSession.slug)) return;
             const id = `${roleSession.slug}-${Date.now()}`;
             sessionNotifications.unshift({
                 id,
