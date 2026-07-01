@@ -99,11 +99,11 @@ webview, iframe {
 </div>
 </div>
 <div class="mt-8 space-y-3" id="tool-list">
-<a class="tool-button flex min-h-[108px] w-full flex-col justify-center rounded-lg border border-white/10 px-4 py-4 text-left transition-colors hover:border-primary/50" href="automation-central/index.html" data-tool-id="automation-central" data-tool-scope="internal">
+<a class="tool-button flex min-h-[108px] w-full flex-col justify-center rounded-lg border border-white/10 px-4 py-4 text-left transition-colors hover:border-primary/50" href="automation-central/index.html" data-tool-id="automation-central" data-tool-scope="internal" hidden>
 <span class="block text-sm font-semibold text-primary-fixed">Automation Central</span>
 <span class="mt-1 block text-xs leading-relaxed text-on-surface-variant">Define Level 4, Level 5, and Level 6 autonomy capabilities for Tess to build.</span>
 </a>
-<a class="tool-button flex min-h-[108px] w-full flex-col justify-center rounded-lg border border-white/10 px-4 py-4 text-left transition-colors hover:border-primary/50" href="recruiting-central/index.html" data-tool-id="recruiting-central" data-tool-scope="internal">
+<a class="tool-button flex min-h-[108px] w-full flex-col justify-center rounded-lg border border-white/10 px-4 py-4 text-left transition-colors hover:border-primary/50" href="recruiting-central/index.html" data-tool-id="recruiting-central" data-tool-scope="internal" hidden>
 <span class="block text-sm font-semibold text-primary-fixed">Recruiting Central</span>
 <span class="mt-1 block text-xs leading-relaxed text-on-surface-variant">Design, hire, and promote new roles through Ana and Cole's onboarding lanes.</span>
 </a>
@@ -1099,6 +1099,8 @@ const initialTool = toolFromHash();
 if (initialTool) {
   activeTool = initialTool;
   activeToolScope = tools[initialTool].scope || 'internal';
+  setToolScope(activeToolScope, { renderFirst: false });
+} else {
   setToolScope(activeToolScope, { renderFirst: false });
 }
 window.addEventListener('hashchange', () => {
