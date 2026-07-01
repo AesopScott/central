@@ -66,6 +66,34 @@
 
   var TITLE_WORDS = { hr: "HR", ai: "AI", ux: "UX", pmo: "PMO", cs: "CS" };
 
+  // One-click SKILL.md download — same raw base as the departments in-app panel.
+  // Slug (s.skill) maps to skills/<slug>/SKILL.md in the central repo.
+  var SKILL_RAW_BASE = "https://raw.githubusercontent.com/AesopScott/central/main/skills";
+
+  function downloadSkillFile(slug, triggerEl) {
+    var url = SKILL_RAW_BASE + "/" + slug + "/SKILL.md";
+    var label = triggerEl ? triggerEl.querySelector("[data-dl-label]") : null;
+    var original = label ? label.textContent : "";
+    if (label) label.textContent = "Downloading…";
+    fetch(url, { cache: "no-store" }).then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.text();
+    }).then(function (text) {
+      var blob = new Blob([text], { type: "text/markdown" });
+      var href = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = href;
+      a.download = slug + ".SKILL.md";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(href);
+      if (label) { label.textContent = "Saved"; setTimeout(function () { label.textContent = original; }, 1400); }
+    }).catch(function () {
+      if (label) { label.textContent = "Not on GitHub yet"; setTimeout(function () { label.textContent = original; }, 2200); }
+    });
+  }
+
   function ownerName(slug) {
     return slug.split("-")[0].replace(/^./, function (c) { return c.toUpperCase(); });
   }
@@ -108,6 +136,13 @@
         '<p class="mt-3 text-body-md text-on-surface-variant leading-relaxed">' + escapeHtml(s.desc) + "</p>" +
         '<div class="mt-3 text-label-sm uppercase tracking-wider text-on-surface-variant">Trigger: <span class="text-on-surface normal-case tracking-normal">' + escapeHtml(s.trigger) + "</span></div>" +
         gateRow +
+        '<div class="mt-4 flex justify-end">' +
+          '<button type="button" data-skill-download="' + escapeHtml(s.skill) + '"' +
+            ' class="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-label-sm font-semibold text-primary transition-colors hover:bg-primary/20"' +
+            ' aria-label="Download SKILL.md for ' + escapeHtml(s.skill) + ' from GitHub">' +
+            '<span aria-hidden="true">↓</span><span data-dl-label>Download SKILL.md</span>' +
+          "</button>" +
+        "</div>" +
       "</div>";
   }
 
@@ -144,6 +179,13 @@
 
     overlay.querySelector("#skills-close").addEventListener("click", close);
     overlay.querySelector(".skills-backdrop").addEventListener("click", close);
+
+    grid.addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest("[data-skill-download]") : null;
+      if (!btn) return;
+      e.preventDefault();
+      downloadSkillFile(btn.getAttribute("data-skill-download"), btn);
+    });
 
     var search = overlay.querySelector("#skills-search");
     var empty = overlay.querySelector("#skills-empty");
