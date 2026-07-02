@@ -1487,6 +1487,106 @@ function formatAttachments(attachments) {
   }).join('\n');
 }
 
+function attachmentSearchRoots() {
+  const home = os.homedir();
+  return uniquePaths([
+    repoRoot,
+    home,
+    path.join(home, 'Desktop'),
+    path.join(home, 'Documents'),
+    path.join(home, 'Downloads'),
+    path.join(home, 'OneDrive', 'Desktop'),
+    path.join(home, 'OneDrive', 'Documents'),
+    path.join(os.tmpdir(), 'mindshare-central', 'attachments')
+  ]);
+}
+
+async function findAttachmentCandidates(fileName, fileSize = 0, roots = attachmentSearchRoots()) {
+  const targetName = String(fileName || '').trim().toLowerCase();
+  if (!targetName) return [];
+
+  const matches = [];
+  const queue = roots.map((rootPath) => ({ rootPath, depth: 0 }));
+  const seen = new Set();
+  const maxDepth = 4;
+  const maxDirectories = 400;
+  let scannedDirectories = 0;
+
+  while (queue.length && scannedDirectories < maxDirectories) {
+    const current = queue.shift();
+    const resolved = path.resolve(current.rootPath);
+    if (seen.has(resolved)) continue;
+    seen.add(resolved);
+
+    let entries = [];
+    try {
+      entries = await fs.readdir(resolved, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    scannedDirectories += 1;
+
+    for (const entry of entries) {
+      const entryPath = path.join(resolved, entry.name);
+      if (entry.isFile() && entry.name.toLowerCase() === targetName) {
+        try {
+          const stats = await fs.stat(entryPath);
+          matches.push({
+            path: entryPath,
+            size: stats.size,
+            mtimeMs: stats.mtimeMs,
+            sizeMatch: fileSize > 0 && stats.size === fileSize
+          });
+        } catch {
+          // Ignore files that disappear while scanning.
+        }
+      } else if (
+        entry.isDirectory() &&
+        current.depth < maxDepth &&
+        !entry.name.startsWith('.') &&
+        !REVIEW_SKIP_DIRS.has(entry.name)
+      ) {
+        queue.push({ rootPath: entryPath, depth: current.depth + 1 });
+      }
+    }
+  }
+
+  return matches.sort((a, b) => {
+    if (a.sizeMatch !== b.sizeMatch) return a.sizeMatch ? -1 : 1;
+    return b.mtimeMs - a.mtimeMs;
+  });
+}
+
+async function prepareAttachments(attachments) {
+  if (!Array.isArray(attachments) || attachments.length === 0) {
+    return [];
+  }
+
+  return Promise.all(attachments.map(async (file) => {
+    const filePath = String(file?.path || '').trim();
+    if (filePath) {
+      return file;
+    }
+
+    const fileName = path.basename(String(file?.name || '').trim());
+    const fileSize = Number(file?.size || 0);
+    if (!fileName) {
+      return file;
+    }
+
+    const candidates = await findAttachmentCandidates(fileName, fileSize);
+    if (!candidates.length) {
+      return file;
+    }
+
+    return {
+      ...file,
+      path: candidates[0].path,
+      size: Number(file?.size || candidates[0].size || 0)
+    };
+  }));
+}
+
 function parseJsonLines(text) {
   return String(text || '')
     .split(/\r?\n/)
@@ -1969,7 +2069,8 @@ async function sendCodexMessage(payload) {
   session.provider = session.provider || 'codex';
   const transcriptItems = Array.isArray(payload?.transcript) ? payload.transcript : session.messages.slice(-MAX_TRANSCRIPT_ITEMS);
   const transcript = compactTranscript(transcriptItems);
-  const attachmentText = formatAttachments(payload?.attachments);
+  const attachments = await prepareAttachments(payload?.attachments);
+  const attachmentText = formatAttachments(attachments);
   const prompt = `You are connected to the MindShare local office chat.
 
 Respond from inside the active role context when one is selected. Use first person as that role.
@@ -2194,7 +2295,8 @@ async function sendDeepSeekMessage(payload) {
   session.provider = session.provider || 'deepseek';
   const transcriptItems = Array.isArray(payload?.transcript) ? payload.transcript : session.messages.slice(-MAX_TRANSCRIPT_ITEMS);
   const transcript = compactTranscript(transcriptItems);
-  const attachmentText = formatAttachments(payload?.attachments);
+  const attachments = await prepareAttachments(payload?.attachments);
+  const attachmentText = formatAttachments(attachments);
   const model = process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash';
   const systemPrompt = `You are connected to the MindShare local office chat.
 
@@ -2549,7 +2651,8 @@ async function sendClaudeMessage(payload) {
   session.provider = session.provider || 'claude';
   const transcriptItems = Array.isArray(payload?.transcript) ? payload.transcript : session.messages.slice(-MAX_TRANSCRIPT_ITEMS);
   const transcript = compactTranscript(transcriptItems);
-  const attachmentText = formatAttachments(payload?.attachments);
+  const attachments = await prepareAttachments(payload?.attachments);
+  const attachmentText = formatAttachments(attachments);
   const claudeModel = payload?.model || 'sonnet';
   const prompt = `You are connected to the MindShare local office chat.
 
@@ -2665,7 +2768,7 @@ function previewRow(label, text, note) {
 // MindShare composes it. Panel B is the CLI-assembled layer MindShare never
 // holds — labeled, never faked. Panel C (prior completed sessions) is added by
 // the renderer from its own storage and is NOT injected into this prompt.
-function buildPromptPreview(payload = {}) {
+async function buildPromptPreview(payload = {}) {
   const sessionId = String(payload?.sessionId || '');
   const session = sessions.get(sessionId) || null;
   const provider = String(payload?.provider || session?.provider || 'claude');
@@ -2675,7 +2778,7 @@ function buildPromptPreview(payload = {}) {
   const transcriptItems = Array.isArray(payload?.transcript)
     ? payload.transcript
     : (session ? session.messages.slice(-MAX_TRANSCRIPT_ITEMS) : []);
-  const attachments = Array.isArray(payload?.attachments) ? payload.attachments : [];
+  const attachments = await prepareAttachments(Array.isArray(payload?.attachments) ? payload.attachments : []);
 
   // Build the exact dynamic blocks the real send paths build.
   const runtimeBlock = providerRuntimeContext(provider, model);

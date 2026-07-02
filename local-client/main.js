@@ -1398,6 +1398,39 @@ ipcMain.handle('mindshare:choose-image-files', async () => {
     }))
   };
 });
+ipcMain.handle('mindshare:materialize-attachments', async (_event, payload = {}) => {
+  const files = Array.isArray(payload.files) ? payload.files : [];
+  if (!files.length) {
+    return { ok: true, files: [] };
+  }
+
+  const tempRoot = path.join(os.tmpdir(), 'mindshare-central', 'attachments');
+  fs.mkdirSync(tempRoot, { recursive: true });
+
+  const materialized = [];
+  for (const file of files) {
+    const rawName = String(file?.name || 'attachment').trim() || 'attachment';
+    const safeName = path.basename(rawName).replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
+    const base64 = String(file?.bufferBase64 || '');
+    if (!base64) continue;
+
+    const extension = path.extname(safeName);
+    const stem = extension ? safeName.slice(0, -extension.length) : safeName;
+    const uniqueName = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}-${stem}${extension}`;
+    const outputPath = path.join(tempRoot, uniqueName);
+    const buffer = Buffer.from(base64, 'base64');
+
+    fs.writeFileSync(outputPath, buffer);
+    materialized.push({
+      path: outputPath,
+      name: safeName,
+      type: String(file?.type || ''),
+      size: buffer.length
+    });
+  }
+
+  return { ok: true, files: materialized };
+});
 ipcMain.handle('mindshare:copy-text', async (_event, payload = {}) => {
   clipboard.writeText(String(payload.text || ''));
   return { ok: true };

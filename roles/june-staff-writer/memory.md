@@ -53,8 +53,26 @@ TWO decisions still gate file 10: (1) **THE SEAM** — Lane A keep studies + one
 ### Council voice rules (source: atrophy book, `~/.claude/commands/council.md`)
 Folded portable disciplines: Vincent — no LinkedIn slop + Sunday-night test; Margaret — Counter-Case structural + no naked prophecy; Joan — heart through specificity; Ruth — civic stakes = bloodstream. Excluded by Scott: full banned-vocab list, Henry reread-the-Compact. Contrarian is named **Viola** in live canon (historical name in atrophy = Cordelia).
 
+### Publisher chapter review mandates added to Council (2026-07-01)
+Scott asked to turn the publisher's developmental recommendations into standing Council mandates for future chapter reviews. Updated `C:\Users\scott\.claude\commands\council.md` to v1.1 with a new `Publisher Chapter Review Mandates` section. Passing standard: Henry cannot pass a chapter until it has a clear job in the whole-book progression, avoids preventable repetition, lands deliberately, and makes the next chapter easier to enter.
+
+Mandate split:
+- Henry owns structure, chapter purpose, progression, transitions, repetition, and deliberate chapter endings.
+- Vincent owns pacing, long runs of rhetorical questions, sentence rhythm, skeptical-reader risk, and the Sunday-night test.
+- Margaret owns evidence before strong claims, sourced factual rigor, real counterarguments, and AI's legitimate benefits.
+- Joan owns personal scenes, cybersecurity/family/mentoring/thinking-changed material, concrete witness, and reader-facing value.
+- Viola owns emotional balance, Scott's voice, register, and preventing generic polish or premature emotional landing.
+- Ruth owns whole-book belonging, public stakes, affected communities, thesis visibility, and the larger human argument.
+
+Boundary reaffirmed in the command: these mandates authorize inline tags, findings, pass/fail calls, and explicitly labeled draft suggestions when asked. They do **not** authorize silent rewrites of Scott's prose.
+
+### Chapter structural template created (2026-07-01)
+Created `G:\My Drive\central\dem\Chapter Template.md` as the reusable chapter build sheet for *Atrophy*. It translates the publisher's developmental recommendations and Council mandates into a drafting order: chapter job, opening type, hook, early thesis, personal witness, editorial turns, referenced content, emotional hooks, counterargument/legitimate benefit, reader value, earned summary, call to action, closing image, and transition. Future chapter drafting and revision should use this template before Council review so structure is addressed before line-level critique.
+
 ## Decisions
 
+- 2026-07-01 — Created `G:\My Drive\central\dem\Chapter Template.md` as the standing structural chapter template for publisher/Council alignment.
+- 2026-07-01 — Publisher recommendations divided across the Council and added to `~/.claude/commands/council.md` as mandatory chapter-review pass gates.
 - 2026-06-29 — Council portable rules folded into global `council.md`; banned-vocab list and Henry's reread-the-Compact rule deliberately left out.
 - OPEN — "behind-the-scenes book mode" (showing Muses/Council debate inside the book itself): Scott still debating; not baked in.
 

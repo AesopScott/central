@@ -1319,8 +1319,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                         officeInjected: Boolean(session.officeInjected),
                         connectionIssue: Boolean(session.connectionIssue),
                         processing: false,
-                        processingEngine: null,
-                        processingTurnId: null
+                        processingEngine: null
                     };
                 });
                 if (saved.activeRoleSlug && roleSessions[saved.activeRoleSlug]) {
@@ -1545,8 +1544,7 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                     officeInjected: false,
                     connectionIssue: false,
                     processing: false,
-                    processingEngine: null,
-                    processingTurnId: null
+                    processingEngine: null
                 };
             } else {
                 Object.assign(roleSessions[slug], { name, title, level, department: department || roleSessions[slug].department, image: image || roleSessions[slug].image || '' });
@@ -4751,7 +4749,6 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             roleSession.promptQueue = [];
             roleSession.processing = false;
             roleSession.processingEngine = null;
-            roleSession.processingTurnId = null;
             roleSession.connectionIssue = false;
             roleSession.tokenUsage = null;
             roleSession.officeInjected = false;
@@ -4781,21 +4778,18 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             if (!activeRoleSlug || !roleSessions[activeRoleSlug]) return;
             const roleSession = roleSessions[activeRoleSlug];
             if (!roleSession.processing) return;
-            roleSession.processingTurnId = null;
             const client = mindShareLocalClient();
             const sessionId = roleSession.claudeSessionId || roleSession.codexSessionId || '';
             if (client?.stopMessage && sessionId) {
                 try { await client.stopMessage({ sessionId }); } catch {}
             }
+            roleSession.promptQueue = [];
             roleSession.processing = false;
             roleSession.processingEngine = null;
             persistOfficeState();
             renderActiveSessions();
             addChatMessageToRole(roleSession, 'system', 'Stopped.');
             clearChatStatus();
-            if (roleSession.promptQueue.length) {
-                processPromptQueue(roleSession);
-            }
         }
 
         async function processPromptQueue(roleSession) {
@@ -4844,10 +4838,8 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
             const transcriptEnd = roleSession.messages.length;
             const transcript = roleSession.messages.slice(Math.max(0, transcriptEnd - 6), transcriptEnd);
             queuedPrompt.messageRecord = addChatMessageToRole(roleSession, 'user', queuedPrompt.displayMessage || queuedPrompt.message);
-            const processingTurnId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
             roleSession.processing = true;
             roleSession.processingEngine = engine;
-            roleSession.processingTurnId = processingTurnId;
             persistOfficeState();
             renderActiveSessions();
             if (activeRoleSlug === roleSession.slug) {
@@ -4900,14 +4892,11 @@ Skills are loaded from the HR-owned registry (roles/skills-registry.json).
                 addChatMessageToRole(roleSession, 'system', `Lost connection to the MindShare Local Client: ${error.message || error}`);
                 if (activeRoleSlug === roleSession.slug) clearChatStatus();
             } finally {
-                if (roleSession.processingTurnId === processingTurnId) {
-                    roleSession.processing = false;
-                    roleSession.processingEngine = null;
-                    roleSession.processingTurnId = null;
-                    persistOfficeState();
-                    renderActiveSessions();
-                }
-                if (!roleSession.processing && roleSession.promptQueue.length) {
+                roleSession.processing = false;
+                roleSession.processingEngine = null;
+                persistOfficeState();
+                renderActiveSessions();
+                if (roleSession.promptQueue.length) {
                     processPromptQueue(roleSession);
                 }
             }

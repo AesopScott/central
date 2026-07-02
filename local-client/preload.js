@@ -79,6 +79,7 @@ contextBridge.exposeInMainWorld('MindShareLocalClient', {
   triggerMicrophoneShortcut: () => ipcRenderer.invoke('mindshare:microphone-shortcut'),
   chooseFiles: () => ipcRenderer.invoke('mindshare:choose-files'),
   chooseImageFiles: () => ipcRenderer.invoke('mindshare:choose-image-files'),
+  materializeAttachments: (payload) => ipcRenderer.invoke('mindshare:materialize-attachments', payload),
   copyText: (payload) => ipcRenderer.invoke('mindshare:copy-text', payload),
   showFile: (payload) => ipcRenderer.invoke('mindshare:show-file', payload),
   installSkill: (payload) => ipcRenderer.invoke('mindshare:install-skill', payload),
